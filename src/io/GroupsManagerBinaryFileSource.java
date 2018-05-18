@@ -138,16 +138,14 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
     public boolean create(Object o) {
         Employee[] employee;
         BusinessTravel[] businessTravels;
-        File file = new File(getPath(), ((EmployeeGroup)o).getName() + ".bin");
-
+        File file;
         DataOutputStream out = null;
-        try {
-            out = new DataOutputStream(new FileOutputStream(file));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
 
-        try {
+        try{
+            file = new File(getPath(), ((EmployeeGroup)o).getName() + ".bin");
+            file.createNewFile();
+
+            out = new DataOutputStream(new FileOutputStream(file));
             employee = ((EmployeeGroup)o).getEmployees();
 
             for (Employee anEmployee : employee) {

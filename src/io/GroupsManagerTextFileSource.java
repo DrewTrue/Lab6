@@ -120,9 +120,10 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
         PrintWriter out;
         Employee[] employee;
         BusinessTravel[] businessTravels;
-        File file = new File(getPath(), ((EmployeeGroup)o).getName() + ".txt");
-
-        try{
+        File file;
+        try {
+            file = new File(getPath(), ((EmployeeGroup)o).getName() + ".txt");
+            file.createNewFile();
             out = new PrintWriter(file);
             employee = ((EmployeeGroup)o).getEmployees();
 
