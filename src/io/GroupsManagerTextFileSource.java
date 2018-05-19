@@ -13,8 +13,8 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
     }
 
     @Override
-    public void load(Object o) {
-        Scanner in = new Scanner(getPath() + ((EmployeeGroup)o).getName() + ".txt");
+    public void load(EmployeeGroup employeeGroup) {
+        Scanner in = new Scanner(getPath() + employeeGroup.getName() + ".txt");
 
         Employee employee;
         BusinessTravel businessTravel;
@@ -36,7 +36,7 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
             employee.setBonus(in.nextInt());
             if(employee.getBonus() == 0) {
                 try {
-                    ((EmployeeGroup) o).addEmployee(employee);
+                    employeeGroup.addEmployee(employee);
                 } catch (AlreadyAddedException e) {
                     e.printStackTrace();
                 }
@@ -58,15 +58,15 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
     }
 
     @Override
-    public void store(Object o) {
+    public void store(EmployeeGroup employeeGroup) {
         PrintWriter out;
         Employee[] employee;
         BusinessTravel[] businessTravels;
-        File file = new File(getPath(), ((EmployeeGroup)o).getName() + ".txt");
+        File file = new File(getPath(), employeeGroup.getName() + ".txt");
 
         try{
             out = new PrintWriter(file);
-            employee = ((EmployeeGroup)o).getEmployees();
+            employee = employeeGroup.getEmployees();
 
             for (Employee anEmployee : employee) {
                 out.println(anEmployee.getClass().getSimpleName());
@@ -101,8 +101,8 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
     }
 
     @Override
-    public boolean delete(Object o) {
-        String path = getPath() + ((EmployeeGroup)o).getName() + ".txt";
+    public boolean delete(EmployeeGroup employeeGroup) {
+        String path = getPath() + employeeGroup.getName() + ".txt";
 
         try {
             Files.delete(Paths.get(path));
@@ -115,16 +115,16 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
     }
 
     @Override
-    public boolean create(Object o) {
+    public boolean create(EmployeeGroup employeeGroup) {
         PrintWriter out;
         Employee[] employee;
         BusinessTravel[] businessTravels;
         File file;
         try {
-            file = new File(getPath(), ((EmployeeGroup)o).getName() + ".txt");
+            file = new File(getPath(), employeeGroup.getName() + ".txt");
             file.createNewFile();
             out = new PrintWriter(file);
-            employee = ((EmployeeGroup)o).getEmployees();
+            employee = employeeGroup.getEmployees();
 
             for (Employee anEmployee : employee) {
                 out.println(anEmployee.getClass().getSimpleName());

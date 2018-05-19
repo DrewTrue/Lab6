@@ -34,14 +34,24 @@ public class SerializedFileBasedEmployeeFactory extends EmployeeFactory {
     @Override
     public GroupsManager createDepartmentManager(String name) {
         ControlledDepartmentManager controlledDepartmentManager = new ControlledDepartmentManager(name);
-        source.create(controlledDepartmentManager);
+        EmployeeGroup[] groups = controlledDepartmentManager.getEmployeesGroups();
+
+        for (EmployeeGroup group : groups) {
+            source.create(group);
+        }
+
         return controlledDepartmentManager;
     }
 
     @Override
     public GroupsManager createProjectManager() {
         ControlledProjectManager controlledProjectManager = new ControlledProjectManager();
-        source.create(controlledProjectManager);
+        EmployeeGroup[] groups = controlledProjectManager.getEmployeesGroups();
+
+        for (EmployeeGroup group : groups) {
+            source.create(group);
+        }
+
         return controlledProjectManager;
     }
 
@@ -55,14 +65,23 @@ public class SerializedFileBasedEmployeeFactory extends EmployeeFactory {
     @Override
     public GroupsManager createDepartmentManager(String name, int size) {
         ControlledDepartmentManager controlledDepartmentManager = new ControlledDepartmentManager(name, size);
-        source.create(controlledDepartmentManager);
+        EmployeeGroup[] groups = controlledDepartmentManager.getEmployeesGroups();
+
+        for (EmployeeGroup group : groups) {
+            source.create(group);
+        }
+
         return controlledDepartmentManager;
     }
 
     @Override
     public GroupsManager createProjectManager(Node<EmployeeGroup> head) {
         ControlledProjectManager controlledProjectManager = new ControlledProjectManager(head);
-        source.create(controlledProjectManager);
+        EmployeeGroup[] groups = controlledProjectManager.getEmployeesGroups();
+
+        for (EmployeeGroup group : groups) {
+            source.create(group);
+        }
         return controlledProjectManager;
     }
 
@@ -83,7 +102,11 @@ public class SerializedFileBasedEmployeeFactory extends EmployeeFactory {
     @Override
     public GroupsManager createDepartmentManager(String name, EmployeeGroup[] groups) {
         ControlledDepartmentManager controlledDepartmentManager = new ControlledDepartmentManager(name, groups);
-        source.create(controlledDepartmentManager);
+
+        for (EmployeeGroup group : groups) {
+            source.create(group);
+        }
+
         return controlledDepartmentManager;
     }
 }

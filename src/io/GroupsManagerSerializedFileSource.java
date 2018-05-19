@@ -11,13 +11,13 @@ public class GroupsManagerSerializedFileSource extends GroupsManagerFileSource {
     }
 
     @Override
-    public void load(Object o) {
+    public void load(EmployeeGroup employeeGroup) {
         File file;
         ObjectInputStream in;
         try {
-            file = new File(getPath(), ((EmployeeGroup) o).getName() + ".bin");
+            file = new File(getPath(), employeeGroup.getName() + ".bin");
             in = new ObjectInputStream(new FileInputStream(file));
-            o = in.readObject();
+            employeeGroup = (EmployeeGroup) in.readObject();
             in.close();
         } catch (IOException | ClassNotFoundException e){
             e.printStackTrace();
@@ -25,13 +25,13 @@ public class GroupsManagerSerializedFileSource extends GroupsManagerFileSource {
     }
 
     @Override
-    public void store(Object o) {
+    public void store(EmployeeGroup employeeGroup) {
         File file;
         ObjectOutputStream out;
         try {
-            file = new File(getPath(), ((EmployeeGroup)o).getName() + ".bin");
+            file = new File(getPath(), employeeGroup.getName() + ".bin");
             out = new ObjectOutputStream(new FileOutputStream(file));
-            out.writeObject(o);
+            out.writeObject(employeeGroup);
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -39,8 +39,8 @@ public class GroupsManagerSerializedFileSource extends GroupsManagerFileSource {
     }
 
     @Override
-    public boolean delete(Object o) {
-        String path = getPath() + ((EmployeeGroup)o).getName() + ".txt";
+    public boolean delete(EmployeeGroup employeeGroup) {
+        String path = getPath() + employeeGroup.getName() + ".txt";
 
         try {
             Files.delete(Paths.get(path));
@@ -53,14 +53,14 @@ public class GroupsManagerSerializedFileSource extends GroupsManagerFileSource {
     }
 
     @Override
-    public boolean create(Object o) {
+    public boolean create(EmployeeGroup employeeGroup) {
         File file;
         ObjectOutputStream out;
         try {
-            file = new File(getPath(), ((EmployeeGroup)o).getName() + ".bin");
+            file = new File(getPath(), employeeGroup.getName() + ".bin");
             file.createNewFile();
             out = new ObjectOutputStream(new FileOutputStream(file));
-            out.writeObject(o);
+            out.writeObject(employeeGroup);
             out.close();
             return true;
         } catch (IOException e) {

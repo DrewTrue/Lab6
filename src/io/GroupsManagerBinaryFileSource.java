@@ -12,9 +12,9 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
     }
 
     @Override
-    public void load(Object o) {
+    public void load(EmployeeGroup employeeGroup) {
         DataInputStream in = null;
-        String path = getPath() + ((EmployeeGroup)o).getName() + ".txt";
+        String path = getPath() + employeeGroup.getName() + ".txt";
 
         try {
             in = new DataInputStream(new FileInputStream(path));
@@ -44,7 +44,7 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
                 employee.setBonus(in.read());
                 if (employee.getBonus() == 0) {
                     try {
-                        ((EmployeeGroup) o).addEmployee(employee);
+                        employeeGroup.addEmployee(employee);
                     } catch (AlreadyAddedException e) {
                         e.printStackTrace();
                     }
@@ -70,10 +70,10 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
     }
 
     @Override
-    public void store(Object o) {
+    public void store(EmployeeGroup employeeGroup) {
         Employee[] employee;
         BusinessTravel[] businessTravels;
-        File file = new File(getPath(), ((EmployeeGroup)o).getName() + ".bin");
+        File file = new File(getPath(), employeeGroup.getName() + ".bin");
 
         DataOutputStream out = null;
         try {
@@ -83,7 +83,7 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
         }
 
         try {
-            employee = ((EmployeeGroup)o).getEmployees();
+            employee = employeeGroup.getEmployees();
 
             for (Employee anEmployee : employee) {
                 assert out != null;
@@ -120,8 +120,8 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
     }
 
     @Override
-    public boolean delete(Object o) {
-        String path = getPath() + ((EmployeeGroup)o).getName() + ".bin";
+    public boolean delete(EmployeeGroup employeeGroup) {
+        String path = getPath() + employeeGroup.getName() + ".bin";
 
         try {
             Files.delete(Paths.get(path));
@@ -134,18 +134,18 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
     }
 
     @Override
-    public boolean create(Object o) {
+    public boolean create(EmployeeGroup employeeGroup) {
         Employee[] employee;
         BusinessTravel[] businessTravels;
         File file;
         DataOutputStream out = null;
 
         try{
-            file = new File(getPath(), ((EmployeeGroup)o).getName() + ".bin");
+            file = new File(getPath(), employeeGroup.getName() + ".bin");
             file.createNewFile();
 
             out = new DataOutputStream(new FileOutputStream(file));
-            employee = ((EmployeeGroup)o).getEmployees();
+            employee = employeeGroup.getEmployees();
 
             for (Employee anEmployee : employee) {
                 assert out != null;
