@@ -1,6 +1,8 @@
 package humanResources;
 
-public abstract class Employee implements Comparable<Employee>{
+import java.io.Serializable;
+
+public abstract class Employee implements Comparable<Employee>, Serializable{
     private String firstName;
     private String secondName;
     private JobTitlesEnum jobTitle;

@@ -7,8 +7,6 @@ import java.nio.file.*;
 import java.time.LocalDate;
 
 public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
-    private final static String DEFAULT_END_OF = "end of creating";
-
     public GroupsManagerBinaryFileSource(String path) {
         super(path);
     }
@@ -33,6 +31,7 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
         LocalDate endTravel;
         String description;
         String destination;
+        int travelsQuantity;
 
         try {
             assert in != null;
@@ -51,8 +50,9 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
                     }
                 } else {
                     employee.setBonus(in.read());
-                    ((StaffEmployee) employee).setTravelsQuantity(in.read());
-                    while (!in.readUTF().equals(DEFAULT_END_OF)) {
+                    travelsQuantity = in.read();
+                    ((StaffEmployee) employee).setTravelsQuantity(travelsQuantity);
+                    for(int i = 0; i < travelsQuantity; i++) {
                         beginTravel = LocalDate.parse(in.readUTF());
                         endTravel = LocalDate.parse(in.readUTF());
                         compensation = in.read();
@@ -110,7 +110,6 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
                         out.writeUTF(businessTravel.getDescription());
                         out.writeUTF(businessTravel.getDestination());
                     }
-                    out.writeUTF(DEFAULT_END_OF);
                 }
             }
             assert out != null;
@@ -170,7 +169,6 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
                         out.writeUTF(businessTravel.getDescription());
                         out.writeUTF(businessTravel.getDestination());
                     }
-                    out.writeUTF(DEFAULT_END_OF);
                 }
             }
             out.close();

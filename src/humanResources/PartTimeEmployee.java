@@ -1,7 +1,8 @@
 package humanResources;
 
-public class PartTimeEmployee extends Employee {
+import java.io.Serializable;
 
+public class PartTimeEmployee extends Employee implements Serializable {
     public PartTimeEmployee(String firstName, String secondName,  int salary){
         this(firstName, secondName, JobTitlesEnum.NONE, salary);
     }

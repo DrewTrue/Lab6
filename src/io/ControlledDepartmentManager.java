@@ -19,13 +19,10 @@ public class ControlledDepartmentManager extends DepartmentsManager{
     }
 
     @Override
-    public void setName(String name) {
-        super.setName(name);
-    }
-
-    @Override
     public void addGroup(EmployeeGroup group) throws AlreadyAddedException {
-        super.addGroup(group);
+        ControlledDepartment controlledDepartment = new ControlledDepartment(group.getName(), (Employee[]) group.toArray());
+        source.create(controlledDepartment);
+        super.addGroup(controlledDepartment);
     }
 
     @Override
@@ -42,9 +39,8 @@ public class ControlledDepartmentManager extends DepartmentsManager{
 
     @Override
     public boolean add(EmployeeGroup group) {
-        //EmployeeGroup employeeGroup = group;
-        source.create(group);
-        return super.add(group);
+        ControlledDepartment controlledDepartment = new ControlledDepartment(group.getName(), (Employee[]) group.toArray());
+        return source.create(controlledDepartment) && super.add(controlledDepartment);
     }
 
     @Override
@@ -54,12 +50,26 @@ public class ControlledDepartmentManager extends DepartmentsManager{
 
     @Override
     public boolean addAll(Collection<? extends EmployeeGroup> c) {
+        EmployeeGroup[] groups = (EmployeeGroup[]) c.toArray();
+        ControlledDepartment controlledDepartment;
+
+        for (EmployeeGroup group : groups) {
+            controlledDepartment = new ControlledDepartment(group.getName(), (Employee[]) group.toArray());
+            source.create(controlledDepartment);
+        }
+
         return super.addAll(c);
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends EmployeeGroup> c) {
+        EmployeeGroup[] groups = (EmployeeGroup[]) c.toArray();
+        ControlledDepartment controlledDepartment;
 
+        for (int i = index; i < groups.length; i++) {
+            controlledDepartment = new ControlledDepartment(groups[i].getName(), (Employee[]) groups[i].toArray());
+            source.create(controlledDepartment);
+        }
 
         return super.addAll(index, c);
     }
@@ -94,8 +104,8 @@ public class ControlledDepartmentManager extends DepartmentsManager{
     public void clear() {
         EmployeeGroup[] groups = getEmployeesGroups();
 
-        for(int i = 0; i < groups.length; i++){
-            source.delete(groups[i]);
+        for (EmployeeGroup group : groups) {
+            source.delete(group);
         }
 
         super.clear();
@@ -103,14 +113,17 @@ public class ControlledDepartmentManager extends DepartmentsManager{
 
     @Override
     public EmployeeGroup set(int index, EmployeeGroup element) {
-        source.create(element);
+        ControlledDepartment controlledDepartment = new ControlledDepartment(element.getName(), (Employee[]) element.toArray());
+        source.create(controlledDepartment);
+        source.delete(get(index));
         return super.set(index, element);
     }
 
     @Override
     public void add(int index, EmployeeGroup element) {
-        source.create(element);
-        super.add(index, element);
+        ControlledDepartment controlledDepartment = new ControlledDepartment(element.getName(), (Employee[]) element.toArray());
+        source.create(controlledDepartment);
+        super.add(index, controlledDepartment);
     }
 
     @Override

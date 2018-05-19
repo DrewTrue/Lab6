@@ -1,10 +1,11 @@
 package humanResources;
 
+import java.io.*;
 import java.time.*;
 import java.util.*;
 import java.util.ListIterator;
 
-public class Department implements EmployeeGroup{
+public class Department implements EmployeeGroup, Serializable{
     private String name;
     private int size;
     private Employee[] employees;

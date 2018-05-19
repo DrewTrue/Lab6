@@ -1,10 +1,11 @@
 package humanResources;
 
+import java.io.Serializable;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-public class StaffEmployee extends Employee implements BusinessTraveller {
+public class StaffEmployee extends Employee implements BusinessTraveller, Serializable {
     private int bonus;
     private CircleLinkedList<BusinessTravel> businessTravelsSet;
     private int travelsQuantity;

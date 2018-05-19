@@ -8,8 +8,6 @@ import java.time.LocalDate;
 import java.util.Scanner;
 
 public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
-    private final static String DEFAULT_END_OF = "end of creating";
-
     public GroupsManagerTextFileSource(String path) {
         super(path);
     }
@@ -27,6 +25,7 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
         LocalDate endTravel;
         String description;
         String destination;
+        int travelsQuantity;
 
         while(!in.nextLine().equals("")){
             firstName = in.nextLine();
@@ -43,8 +42,9 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
                 }
             } else {
                 employee.setBonus(in.nextInt());
-                ((StaffEmployee) employee).setTravelsQuantity(in.nextInt());
-                while (!in.next().equals(DEFAULT_END_OF)) {
+                travelsQuantity = in.nextInt();
+                ((StaffEmployee) employee).setTravelsQuantity(travelsQuantity);
+                for (int i = 0; i < travelsQuantity; i++) {
                     beginTravel = LocalDate.parse(in.nextLine());
                     endTravel = LocalDate.parse(in.nextLine());
                     compensation = in.nextInt();
@@ -92,7 +92,6 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
                         out.println(businessTravel.getDescription());
                         out.println(businessTravel.getDestination());
                     }
-                    out.println(DEFAULT_END_OF);
                 }
             }
             out.close();
@@ -149,7 +148,6 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
                         out.println(businessTravel.getDescription());
                         out.println(businessTravel.getDestination());
                     }
-                    out.println(DEFAULT_END_OF);
                 }
             }
             out.close();
