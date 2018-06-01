@@ -25,6 +25,7 @@ public class ControlledProject extends Project {
         isChanged = true;
     }
 
+    //todo здесь и далее, результат операции в super записываешь в переменную и работаешь с ней
     @Override
     public boolean removeEmployee(String firstName, String secondName){
         if(super.removeEmployee(firstName,secondName))

@@ -5,6 +5,9 @@ import java.time.*;
 import java.util.*;
 import java.util.ListIterator;
 
+//todo реализауй итератор
+//todo после итреатора ты можешь проходиться по элементам департамента с помощью foreach
+//todo не получай массив сотрудников, и используй foreach-и
 public class Department implements EmployeeGroup, Serializable{
     private String name;
     private int size;
@@ -31,11 +34,12 @@ public class Department implements EmployeeGroup, Serializable{
         this.employees = employees;
     }
 
+    //todo пример использования foreach для прохода по сотрудникам данного департамента
     @Override
     public int getPartTimeEmployeesQuantity(){
         int quantity = 0;
-        for(int i = 0; i < size; i++) {
-            if(employees[i] instanceof PartTimeEmployee) {
+        for(Employee emp : this) {
+            if(emp instanceof PartTimeEmployee) {
                 quantity++;
             }
         }
@@ -382,7 +386,7 @@ public class Department implements EmployeeGroup, Serializable{
     @Override
     public List<Employee> subList(int fromIndex, int toIndex) {
         if(fromIndex < toIndex && fromIndex >= 0 && toIndex <= size) {
-            LinkedList<Employee> list = new LinkedList<>();
+            LinkedList<Employee> list = new LinkedList<>(); //todo создаешь департамент
             for (int i = fromIndex; i <= toIndex; i++) {
                 list.addNodeList(employees[i]);
             }
@@ -435,12 +439,7 @@ public class Department implements EmployeeGroup, Serializable{
 
     @Override
     public boolean add(Employee employee){
-        try {
-            this.addEmployee(employee);
-        } catch (AlreadyAddedException e) {
-            e.printStackTrace();
-        }
-
+        this.addEmployee(employee);
         return true;
     }
 

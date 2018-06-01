@@ -57,14 +57,13 @@ public abstract class Employee implements Comparable<Employee>, Serializable{
 
     @Override
     public String toString(){
-        String result = String.format("%s, %s, %s, %dр.", firstName, secondName, jobTitle, salary);
-        if(firstName != null && secondName != null && jobTitle != JobTitlesEnum.NONE && salary != 0)
-            return result;
-        return "";
+        return String.format("%s, %s, %s, %dр.", firstName, secondName, jobTitle, salary);
+
     }
 
     @Override
     public boolean equals(Object obj){
+        //todo забыл проерки на ==null, ==this и тип объекта
         return this == obj & firstName.equals(((Employee) obj).firstName)
                 && secondName.equals(((Employee) obj).secondName)
                 && jobTitle.equals(((Employee) obj).jobTitle)

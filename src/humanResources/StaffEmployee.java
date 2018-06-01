@@ -31,6 +31,7 @@ public class StaffEmployee extends Employee implements BusinessTraveller, Serial
         this.travelsQuantity = travelsQuantity;
     }
 
+    //todo посмотри контракт по заданию 3 лб
     public CircleLinkedList<BusinessTravel> getBusinessTravels() {
         return businessTravelsSet;
     }
@@ -51,13 +52,12 @@ public class StaffEmployee extends Employee implements BusinessTraveller, Serial
 
     @Override
     public boolean contains(Object o) {
-        return businessTravelsSet.contains((BusinessTravel) o);
+        return businessTravelsSet.contains(o);
     }
 
     @Override
     public Iterator<BusinessTravel> iterator() {
-        ListIterator<BusinessTravel> iterator = new ListIterator<>(getTravels());
-        return iterator.iterator();
+        return businessTravelsSet.iterator();
     }
 
     @Override
@@ -67,13 +67,7 @@ public class StaffEmployee extends Employee implements BusinessTraveller, Serial
 
     @Override
     public <T> T[] toArray(T[] a) {
-        BusinessTravel[] businessTravels = getTravels();
-        if(a.length < size())
-            a = (T[]) new BusinessTravel[businessTravels.length];
-
-        System.arraycopy(businessTravels, 0, a, 0, size());
-
-        return a;
+        return (T[])businessTravelsSet.toArray();
     }
 
     @Override
@@ -113,15 +107,15 @@ public class StaffEmployee extends Employee implements BusinessTraveller, Serial
 
     @Override
     public boolean isTravelNow(){
-        BusinessTravel lastBusinessTravel = getTravels()[getTravels().length - 1];
+        BusinessTravel lastBusinessTravel = getTravels()[getTravels().length - 1]; //todo сделай в списке метод, который возвращает последний элемент и вызывай его здесь
         return LocalDate.now().isAfter(lastBusinessTravel.getBeginTravel())
                 && LocalDate.now().isBefore(lastBusinessTravel.getEndTravel());
     }
 
     @Override
     public int getTravelDaysFromTimeLapse(LocalDate beginTravelMark, LocalDate endTravelMark){
-        BusinessTravel[] businessTravels = getTravels();
-        for (BusinessTravel businessTravel : businessTravels) {
+        //todo заведи счетчик и накапливай число дней в него, а потом возврати его значение
+        for (BusinessTravel businessTravel : businessTravelsSet) {
             if (beginTravelMark.isAfter(businessTravel.getBeginTravel())
                     && endTravelMark.isBefore(businessTravel.getEndTravel()))
                 return (int) ChronoUnit.DAYS.between(beginTravelMark, endTravelMark);
@@ -153,9 +147,9 @@ public class StaffEmployee extends Employee implements BusinessTraveller, Serial
 
     @Override
     public BusinessTravel[] getTravels(){
-        return businessTravelsSet.getTravels();
+        return businessTravelsSet.toArray();
     }
-
+    //todo это дубль метода size - нафиг его
     public int getTravelsQuantity(){
         return travelsQuantity;
     }
@@ -174,7 +168,7 @@ public class StaffEmployee extends Employee implements BusinessTraveller, Serial
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append(super.toString()).append("\n").append("Travels ").append("/n");
-        BusinessTravel[] businessTravel = businessTravelsSet.getTravels();
+        BusinessTravel[] businessTravel = businessTravelsSet.toArray();
         for (BusinessTravel aBusinessTravel : businessTravel) {
             result.append(aBusinessTravel.toString()).append("\n");
         }
@@ -183,14 +177,12 @@ public class StaffEmployee extends Employee implements BusinessTraveller, Serial
 
     @Override
     public boolean equals(Object obj) {
-        if(this == obj)
-            return true;
-        return obj instanceof StaffEmployee
-                && super.equals(obj)
+        return super.equals(obj)
                 && this.bonus == ((StaffEmployee) obj).bonus
                 && travelsQuantity == ((StaffEmployee) obj).travelsQuantity;
     }
 
+    //todo super.hashCode()
     @Override
     public int hashCode() {
         return travelsQuantity ^ bonus ^ businessTravelsSet.hashCode();

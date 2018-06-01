@@ -3,7 +3,7 @@ package humanResources;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class CircleLinkedList<T>{
+public class CircleLinkedList<T> implements Iterable<T>{
     private Node<T> head;
     private Node<T> tail;
     private int size;
@@ -18,7 +18,7 @@ public class CircleLinkedList<T>{
 
     public boolean addNodeSet(T value){
         Node<T> node = new Node<T>(value);
-        BusinessTravel[] businessTravels = getTravels();
+        //todo while-ом по нодам
         for(int i = 0; i < businessTravels.length; i++){
             if(node.getValue().equals(businessTravels[i]) && !(value instanceof BusinessTravel))
                 return false;
@@ -38,55 +38,26 @@ public class CircleLinkedList<T>{
     }
 
     public boolean addAllSets(Collection<? extends BusinessTravel> c){
-        BusinessTravel[] businessTravels = (BusinessTravel[]) c.toArray();
-        Node<T> node;
-        BusinessTravel[] travels = getTravels();
+
         int counter = 0;
+        //todo foreach(по с) b add()
 
-        for(int i = 0; i < travels.length; i++){
-            node = new Node<>((T)travels[i]);
-
-            for (int j = 0; j < travels.length; j++) {
-                if (node.getValue().equals(travels[j]))
-                    break;
-            }
-            if(head == null) {
-                head = node;
-                tail = node;
-                tail.setNext(head);
-            }
-            else {
-                node.setNext(head);
-                tail.setNext(node);
-                tail = node;
-            }
-            size++;
-            counter++;
-        }
 
         return counter > 0;
     }
 
     public boolean retainAll(Collection<?> c) {
-        BusinessTravel[] retainTravels = (BusinessTravel[]) c.toArray();
-        BusinessTravel[] currentTravels = getTravels();
         int counter = 0;
-
-        clearList();
-
-        for(int i = 0; i < currentTravels.length; i++) {
-            for (int j = 0; j < retainTravels.length; j++) {
-                if (currentTravels[i].equals(retainTravels[j])) {
-                    addNodeSet((T) retainTravels[j]);
-                    counter++;
-                }
+        for (Object o : c) {
+            if(!this.contains(o)) {
+                this.removeNode(o);
+                counter++;
             }
         }
-
         return counter == 0;
     }
 
-    public boolean removeNode(T value){
+    public boolean removeNode(Object value){
         Node<T> current = head;
         Node<T> previous = null;
 
@@ -122,7 +93,7 @@ public class CircleLinkedList<T>{
 
         if (isEmpty())
             return false;
-
+        //todo вместо массива используй foreach(по c)
         for (int i = 0; i < businessTravels.length; i++) {
             do {
                 if (current.getValue().equals(businessTravels[i])) {
@@ -155,12 +126,13 @@ public class CircleLinkedList<T>{
     }
 
     public void clearList(){
+        //todo пока ждому ноду проходимся и делаем ссылки null
         head = null;
         tail = null;
         size =  0;
     }
 
-    public boolean contains(T value){
+    public boolean contains(Object value){
         Node<T> current = head;
 
         while(current != null){
@@ -174,8 +146,11 @@ public class CircleLinkedList<T>{
 
     public boolean containsAll(Collection<?> c){
         Node<T> current = head;
-        BusinessTravel[] businessTravels = (BusinessTravel[]) c.toArray();
         int counter = 0;
+        //todo поменяй на foreach
+        for (Object o : c) {
+            current.getValue().equals(o)
+        }
         for(int i = 0; i < businessTravels.length; i++) {
             while (current != null) {
                 if (current.getValue().equals(businessTravels[i])) {
@@ -189,7 +164,8 @@ public class CircleLinkedList<T>{
         return counter == businessTravels.length;
     }
 
-    public BusinessTravel[] getTravels(){
+    public T[] toArray(){
+        //todo пофиксь под T
         BusinessTravel[] businessTravels = new BusinessTravel[size];
         Node node = head;
         int counter = 0;
@@ -200,14 +176,22 @@ public class CircleLinkedList<T>{
         }while(node != head);
         return businessTravels;
     }
+    //todo итератор
+    private class Iterator<T> implements java.util.Iterator<T> {
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public T next() {
+            return null; //NoSuchElementException
+        }
+    }
 
     public Iterator<T> iterator(){
-        ListIterator<T> iterator = new ListIterator<>((T[])getTravels());
-        return iterator.iterator();
+        return new Iterator<T>();
     }
 
-    public ListIterator<T> listIterator(){
-        ListIterator<T> listIterator = new ListIterator<>((T[])getTravels());
-        return (ListIterator<T>) listIterator.iterator();
-    }
 }

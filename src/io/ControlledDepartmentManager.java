@@ -3,8 +3,11 @@ package io;
 import humanResources.*;
 import java.util.Collection;
 
+//todo в основном используй foreach и не создавай массив
+//todo для создания COntrolled... используй фабрику, ссылку на которую передаст сама фабрика при создании Менеджера
 public class ControlledDepartmentManager extends DepartmentsManager{
     protected Source<EmployeeGroup> source;
+    private EmployeeFactory factory,
 
     public ControlledDepartmentManager(String name) {
         super(name);
@@ -50,10 +53,9 @@ public class ControlledDepartmentManager extends DepartmentsManager{
 
     @Override
     public boolean addAll(Collection<? extends EmployeeGroup> c) {
-        EmployeeGroup[] groups = (EmployeeGroup[]) c.toArray();
         ControlledDepartment controlledDepartment;
 
-        for (EmployeeGroup group : groups) {
+        for (EmployeeGroup group : c) {
             controlledDepartment = new ControlledDepartment(group.getName(), (Employee[]) group.toArray());
             source.create(controlledDepartment);
         }
@@ -61,6 +63,7 @@ public class ControlledDepartmentManager extends DepartmentsManager{
         return super.addAll(c);
     }
 
+    //todo Здесь и далее коллекции в массив не переделываешь, а бегаешь по ним foreach-ем
     @Override
     public boolean addAll(int index, Collection<? extends EmployeeGroup> c) {
         EmployeeGroup[] groups = (EmployeeGroup[]) c.toArray();
@@ -87,6 +90,7 @@ public class ControlledDepartmentManager extends DepartmentsManager{
 
     @Override
     public boolean retainAll(Collection<?> c) {
+        //todo foreach-ем по c и если contains, то remove
         EmployeeGroup[] collectionGroups = (EmployeeGroup[]) c.toArray();
         EmployeeGroup[] employeeGroups = getEmployeesGroups();
 
@@ -102,9 +106,7 @@ public class ControlledDepartmentManager extends DepartmentsManager{
 
     @Override
     public void clear() {
-        EmployeeGroup[] groups = getEmployeesGroups();
-
-        for (EmployeeGroup group : groups) {
+        for (EmployeeGroup group : this) {
             source.delete(group);
         }
 

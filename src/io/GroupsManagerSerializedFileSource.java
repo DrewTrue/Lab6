@@ -17,7 +17,8 @@ public class GroupsManagerSerializedFileSource extends GroupsManagerFileSource {
         try {
             file = new File(getPath(), employeeGroup.getName() + ".bin");
             in = new ObjectInputStream(new FileInputStream(file));
-            employeeGroup = (EmployeeGroup) in.readObject();
+            employeeGroup.clear();
+            employeeGroup.addAll((EmployeeGroup) in.readObject());
             in.close();
         } catch (IOException | ClassNotFoundException e){
             e.printStackTrace();

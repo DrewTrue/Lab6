@@ -4,6 +4,7 @@ import humanResources.*;
 
 import java.util.Collection;
 
+//todo та же фигня, что и в COntrolledDepartment Manager
 public class ControlledProjectManager extends ProjectsManager {
     protected Source<EmployeeGroup> source;
 

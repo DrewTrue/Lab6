@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.ListIterator;
 
+//todo реализауй итератор
+//todo после итреатора ты можешь проходиться по элементам департамента с помощью foreach
+//todo не получай массив сотрудников, и используй foreach-и
 public class DepartmentsManager implements GroupsManager{
     private String name;
     private EmployeeGroup[] groups;
@@ -43,12 +46,7 @@ public class DepartmentsManager implements GroupsManager{
         int quantity = 0;
         Employee[] employees;
         for(int i = 0; i < size; i++) {
-            employees = groups[i].getEmployees();
-            for(int j = 0; j < employees.length; j++) {
-                if (employees[j] instanceof PartTimeEmployee) {
-                    quantity++;
-                }
-            }
+            quantity+= groups[i].getPartTimeEmployeesQuantity(); //todo исправь аналогично следующие 3 метода
         }
         return quantity;
     }

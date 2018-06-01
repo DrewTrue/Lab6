@@ -53,7 +53,7 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
                     travelsQuantity = in.read();
                     ((StaffEmployee) employee).setTravelsQuantity(travelsQuantity);
                     for(int i = 0; i < travelsQuantity; i++) {
-                        beginTravel = LocalDate.parse(in.readUTF());
+                        beginTravel = LocalDate.parse(in.readUTF()); LocalDate.ofEpochDay(in.readLong()); //todo а считывать даты логичнее так
                         endTravel = LocalDate.parse(in.readUTF());
                         compensation = in.read();
                         description = in.readUTF();
@@ -91,7 +91,7 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
                 out.writeUTF(anEmployee.getFirstName());
                 out.writeUTF(anEmployee.getSecondName());
                 out.writeUTF(anEmployee.getJobTitle().toString());
-                out.write(anEmployee.getSalary());
+                out.writeInt(anEmployee.getSalary()); //todo salary логичнее записывать так
 
                 if (anEmployee instanceof PartTimeEmployee) {
                     out.write((anEmployee).getBonus());
@@ -104,7 +104,7 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
                     businessTravels = ((StaffEmployee) anEmployee).getTravels();
 
                     for (BusinessTravel businessTravel : businessTravels) {
-                        out.writeUTF(businessTravel.getBeginTravel().toString());
+                        out.writeLong(businessTravel.getBeginTravel().toEpochDay());//todo даты логичнее записывать так
                         out.writeUTF(businessTravel.getEndTravel().toString());
                         out.write(businessTravel.getCompensation());
                         out.writeUTF(businessTravel.getDescription());

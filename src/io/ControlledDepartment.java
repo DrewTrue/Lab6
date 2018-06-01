@@ -37,12 +37,13 @@ public class ControlledDepartment extends Department{
 
     @Override
     public Employee set(int index, Employee element){
-        if(super.set(index, element) != null)
+        Employee oldEmployee = super.set(index, element);
+        if(oldEmployee != null)
             isChanged = true;
 
-        return super.set(index, element);
+        return oldEmployee;
     }
-
+    //todo здесь и далее, результат операции в super записываешь в переменную и работаешь с ней
     @Override
     public Employee remove(int index){
         if(super.remove(index) != null)

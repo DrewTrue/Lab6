@@ -2,6 +2,8 @@ package humanResources;
 
 import java.util.*;
 
+
+//todo аналогично CycledLinkedList
 public class LinkedList<T>{
     private Node<T> head;
     private Node<T> tail;
@@ -468,6 +470,8 @@ public class LinkedList<T>{
         }
         return businessTravels;
     }
+
+    //todo та же фигня с итератором, что и в CycledLinkedList
 
     public Iterator<T> iteratorEmployees(){
         ListIterator<T> iterator = new ListIterator<>((T[])getEmployees());

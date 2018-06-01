@@ -16,25 +16,4 @@ public class PartTimeEmployee extends Employee implements Serializable {
     }
 
     public void setBonus(int bonus){ }
-
-    @Override
-    public String toString(){
-        String result = String.format("%s, %s, %s, %dр.", super.getFirstName(), super.getSecondName(), super.getJobTitle(), super.getSalary());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj){
-        /*if(this == obj)
-            return true;*/
-        return this == obj & obj instanceof PartTimeEmployee && super.equals(obj);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.getFirstName().hashCode()
-                ^ super.getSecondName().hashCode()
-                ^ super.getJobTitle().hashCode()
-                ^ super.getSalary();
-    }
 }

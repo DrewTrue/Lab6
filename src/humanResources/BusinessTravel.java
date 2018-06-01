@@ -22,6 +22,7 @@ public final class BusinessTravel {
     public BusinessTravel(String destination, LocalDate beginTravel, LocalDate endTravel, int compensation, String description){
         if(endTravel.isBefore(beginTravel) && compensation < 0)
             throw new IllegalArgumentException();
+        //todo разбей на выброс двух исключений с разными сообщениями
         this.compensation = compensation;
         this.beginTravel = beginTravel;
         this.endTravel = endTravel;

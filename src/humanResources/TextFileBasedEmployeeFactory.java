@@ -2,20 +2,15 @@ package humanResources;
 
 import io.*;
 
+//todo пример реализации фабрики
 public class TextFileBasedEmployeeFactory extends EmployeeFactory {
-    private GroupsManagerTextFileSource source;
+    private String path;
 
     public TextFileBasedEmployeeFactory(String path){
-        source = new GroupsManagerTextFileSource(path);
+        this.path = path;
     }
 
-    public GroupsManagerTextFileSource getSource() {
-        return source;
-    }
-
-    public void setSource(GroupsManagerTextFileSource source) {
-        this.source = source;
-    }
+    //todo 3 метода getPath & setPath
 
     @Override
     public EmployeeGroup createDepartment(String name) {
@@ -31,15 +26,12 @@ public class TextFileBasedEmployeeFactory extends EmployeeFactory {
         return controlledProject;
     }
 
+    //todo это пример реализации
     @Override
     public GroupsManager createDepartmentManager(String name) {
-        ControlledDepartmentManager controlledDepartmentManager = new ControlledDepartmentManager(name);
-        EmployeeGroup[] groups = controlledDepartmentManager.getEmployeesGroups();
-
-        for (EmployeeGroup group : groups) {
-            source.create(group);
-        }
-
+        //
+        ControlledDepartmentManager controlledDepartmentManager = new ControlledDepartmentManager(name, this);
+        controlledDepartmentManager.setSource( new GroupsManagerTextFileSource(path));
         return controlledDepartmentManager;
     }
 

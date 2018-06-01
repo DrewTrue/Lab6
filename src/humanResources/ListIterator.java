@@ -2,41 +2,68 @@ package humanResources;
 
 import java.util.*;
 
-public class ListIterator<T> implements Iterable<T>{
-    private T[] list;
-    private int size;
-    private int index;
+//todo это ПРИВАТНЫЙ ВНУТРЕННИЙ класс
+public class ListIterator<T> implements java.util.ListIterator<T> {
+    Node current;
 
     private final static int DEFAULT_INDEX = 0;
 
-    public ListIterator(T[] list) {
+    public ListIterator() {
         this.list = list;
         this.size = list.length;
         this.index = DEFAULT_INDEX;
     }
 
-    public ListIterator(T[] list, int index) {
+    public ListIterator(int index) {
         this.list = list;
         this.size = list.length;
         this.index = index;
     }
 
+
+
     @Override
-    public Iterator<T> iterator() {
-        Iterator<T> iterator = new Iterator<T>() {
-            //private int index = 0;
-            //index = 0;
+    public boolean hasNext() {
+        return false;
+    }
 
-            @Override
-            public boolean hasNext() {
-                return index < size;
-            }
+    @Override
+    public T next() {
+        return null;
+    }
 
-            @Override
-            public T next() {
-                return list[index++];
-            }
-        };
-        return iterator;
+    @Override
+    public boolean hasPrevious() {
+        return false;
+    }
+
+    @Override
+    public T previous() {
+        return null;
+    }
+
+    @Override
+    public int nextIndex() {
+        return 0;
+    }
+
+    @Override
+    public int previousIndex() {
+        return 0;
+    }
+
+    @Override
+    public void remove() {
+
+    }
+
+    @Override
+    public void set(T t) {
+
+    }
+
+    @Override
+    public void add(T t) {
+
     }
 }

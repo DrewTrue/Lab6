@@ -5,6 +5,7 @@ import java.time.*;
 import java.util.*;
 import java.util.ListIterator;
 
+//todo аналогично департаменту
 public class Project implements EmployeeGroup, Serializable {
     private String name;
     private int size;

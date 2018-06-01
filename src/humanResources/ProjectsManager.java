@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.ListIterator;
 
+//todo аналогично департмент менеджеру
 public class ProjectsManager implements GroupsManager{
     private LinkedList<EmployeeGroup> list;
     private int size;

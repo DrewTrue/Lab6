@@ -1,6 +1,6 @@
 package humanResources;
 
-public class AlreadyAddedException extends Exception{
+public class AlreadyAddedException extends RuntimeException{
     public AlreadyAddedException(){
         super("Element already added!");
     }

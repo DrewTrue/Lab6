@@ -26,7 +26,7 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
         String description;
         String destination;
         int travelsQuantity;
-
+        employeeGroup.clear(); //todo проще сделать так
         while(!in.nextLine().equals("")){
             firstName = in.nextLine();
             secondName = in.nextLine();
