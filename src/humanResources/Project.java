@@ -23,30 +23,26 @@ public class Project implements EmployeeGroup, Serializable {
         this.name = name;
         this.size = employees.length;
         for (Employee employee : employees) {
-            list.addNodeList(employee);
+            list.add(employee);
         }
     }
 
     @Override
     public int getPartTimeEmployeesQuantity(){
         int quantity = 0;
-
-        Employee[] employees = getEmployees();
-        for(int i = 0; i < size; i++) {
-            if(employees[i] instanceof PartTimeEmployee) {
+        for(Employee employee : this) {
+            if(employee instanceof PartTimeEmployee) {
                 quantity++;
             }
         }
-
         return quantity;
     }
 
     @Override
     public int getStaffEmployeesQuantity(){
         int quantity = 0;
-        Employee[] employees = getEmployees();
-        for(int i = 0; i < size; i++){
-            if(employees[i] instanceof StaffEmployee){
+        for(Employee employee : this){
+            if(employee instanceof StaffEmployee){
                 quantity++;
             }
         }
@@ -56,9 +52,8 @@ public class Project implements EmployeeGroup, Serializable {
     @Override
     public int getCurrentTravellersQuantity(){
         int quantity = 0;
-        Employee[] employees = getEmployees();
-        for(int i = 0; i < size; i++){
-            if(((StaffEmployee)employees[i]).isTravelNow())
+        for(Employee employee : this){
+            if(((StaffEmployee)employee).isTravelNow())
                 quantity++;
         }
         return quantity;
@@ -67,32 +62,20 @@ public class Project implements EmployeeGroup, Serializable {
     @Override
     public Employee[] getCurrentTravellers(LocalDate beginTravelMark, LocalDate endTravelMark){
         Employee[] newEmployees = new Employee[getStaffEmployeesQuantity()];
-        Employee[] currentEmployees = getEmployees();
         int counter = 0;
-        for(int i = 0; i < size; i++){
-            if(((StaffEmployee)currentEmployees[i]).getTravelDaysFromTimeLapse(beginTravelMark, endTravelMark) > 0)
-                newEmployees[counter] = currentEmployees[i];
-        }
-        return newEmployees;
-    }
-
-    @Override
-    public void addEmployee(Employee employee) throws AlreadyAddedException {
-        Employee[] employeesHelper = getEmployees();
-        for (Employee anEmployeesHelper : employeesHelper) {
-            if (employee.equals(anEmployeesHelper)) {
-                throw new AlreadyAddedException();
+        for(Employee employee : this){
+            if(((StaffEmployee)employee).getTravelDaysFromTimeLapse(beginTravelMark, endTravelMark) > 0) {
+                newEmployees[counter] = employee;
+                counter++;
             }
         }
-        list.addNodeList(employee);
-        size++;
+        return newEmployees;
     }
 
     @Override
     public Employee[] getEmployeesSortedBySalary() {
         Employee[] employees = new Employee[size];
         if(size > 1) {
-            //quickSort(employees, 0, size - 1);
             Arrays.sort(employees, ((Comparator<Employee>) Employee::compareTo).reversed());
 
             /*Arrays.sort(employees, new Comparator<Employee>() {
@@ -108,39 +91,22 @@ public class Project implements EmployeeGroup, Serializable {
     }
 
     @Override
-    public Employee[] getEmployees(){
-        return list.getEmployees();
-    }
-
-    @Override
-    public int employeeQuantity(){
-        return size;
-    }
-
-    @Override
     public boolean removeEmployee(String firstName, String secondName){
-        Employee[] employees = getEmployees();
-
-        for(int i = 0; i < size; i++){
-            if(employees[i].getFirstName().equals(firstName) && employees[i].getSecondName().equals(secondName) && list.removeNode(employees[i])){
+        for(Employee employee : this){
+            if(employee.getFirstName().equals(firstName)
+                    && employee.getSecondName().equals(secondName)
+                    && list.remove(employee)){
                 return true;
             }
         }
-
         return false;
     }
 
     @Override
-    public boolean removeEmployee(Employee employee){
-        return list.removeNode(employee);
-    }
-
-    @Override
     public Employee getEmployee(String firstName, String secondName){
-        Employee[] employees = getEmployees();
-        for(int i = 0; i < size; i++){
-            if(employees[i].getFirstName().equals(firstName) && employees[i].getSecondName().equals(secondName)){
-                return employees[i];
+        for(Employee employee : this){
+            if(employee.getFirstName().equals(firstName) && employee.getSecondName().equals(secondName)){
+                return employee;
             }
         }
         return null;
@@ -186,7 +152,7 @@ public class Project implements EmployeeGroup, Serializable {
     @Override
     public Employee get(int index) {
         if(index > -1 && index < size) {
-            Employee[] employees = getEmployees();
+            Employee[] employees = (Employee[]) toArray();
             return employees[index];
         }
 
@@ -195,22 +161,22 @@ public class Project implements EmployeeGroup, Serializable {
 
     @Override
     public Employee set(int index, Employee element) {
-        return list.setEmployee(index, element);
+        return list.set(index, element);
     }
 
     @Override
     public void add(int index, Employee element) {
-        list.addNodeList(index, element);
+        list.add(index, element);
     }
 
     @Override
     public Employee remove(int index) {
-        return list.removeEmployee(index);
+        return list.remove(index);
     }
 
     @Override
     public int indexOf(Object o) {
-        Employee[] employees = getEmployees();
+        Employee[] employees = (Employee[]) toArray();
         for(int i = 0; i < size; i++){
             if(employees[i].equals(o))
                 return i;
@@ -221,7 +187,7 @@ public class Project implements EmployeeGroup, Serializable {
 
     @Override
     public int lastIndexOf(Object o) {
-        Employee[] employees = getEmployees();
+        Employee[] employees = (Employee[]) toArray();
         for(int i = size - 1; i > -1; i--){
             if(employees[i].equals(o))
                 return i;
@@ -232,28 +198,22 @@ public class Project implements EmployeeGroup, Serializable {
 
     @Override
     public ListIterator<Employee> listIterator() {
-        humanResources.ListIterator<Employee> iterator = new humanResources.ListIterator<>(getEmployees());
-        return (ListIterator<Employee>) iterator.iterator();
+        return new LinkedList<Employee>().listIterator();
     }
 
     @Override
     public ListIterator<Employee> listIterator(int index) {
-        humanResources.ListIterator<Employee> iterator = new humanResources.ListIterator<>(getEmployees(), index);
-        return (ListIterator<Employee>) iterator.iterator();
+        return new LinkedList<Employee>().listIterator(index);
     }
 
     @Override
     public List<Employee> subList(int fromIndex, int toIndex) {
-        Employee[] employees = getEmployees();
-
+        Employee[] employees = (Employee[]) toArray();
         if(fromIndex < toIndex && fromIndex >= 0 && toIndex <= size) {
-            LinkedList<Employee> list = new LinkedList<>();
-            for (int i = fromIndex; i <= toIndex; i++) {
-                list.addNodeList(employees[i]);
-            }
-            return (List<Employee>) list;
+            Project project = new Project(name);
+            project.addAll(Arrays.asList(employees).subList(fromIndex, toIndex + 1));
+            return project;
         }
-
         return null;
     }
 
@@ -274,18 +234,17 @@ public class Project implements EmployeeGroup, Serializable {
 
     @Override
     public Iterator<Employee> iterator() {
-        humanResources.ListIterator<Employee> iterator = new humanResources.ListIterator<>(getEmployees());
-        return iterator.iterator();
+        return new LinkedList<Employee>().iterator();
     }
 
     @Override
     public Object[] toArray() {
-        return getEmployees();
+        return list.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
-        Employee[] employees = getEmployees();
+        Employee[] employees = (Employee[]) toArray();
         if(a.length < employees.length)
             a = (T[]) new Employee[employees.length];
 
@@ -296,42 +255,42 @@ public class Project implements EmployeeGroup, Serializable {
 
     @Override
     public boolean add(Employee employee) {
-        return list.addNodeList(employee);
+        return list.add(employee);
     }
 
     @Override
     public boolean remove(Object o) {
-        return list.removeNode((Employee) o);
+        return list.remove((Employee) o);
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return list.containsAllEmployees(c);
+        return list.containsAll(c);
     }
 
     @Override
     public boolean addAll(Collection<? extends Employee> c) {
-        return list.addAllEmployees(c);
+        return list.addAll(c);
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends Employee> c) {
-        return list.addAllEmployees(index, c);
+        return list.addAll(index, c);
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return list.removeAllEmployees(c);
+        return list.removeAll(c);
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return list.retainAllEmployees(c);
+        return list.retainAll(c);
     }
 
     @Override
     public void clear() {
-        list.clearList();
+        list.clear();
     }
 
     @Override
@@ -339,8 +298,8 @@ public class Project implements EmployeeGroup, Serializable {
         if(this == obj)
             return true;
         if(obj instanceof Project && name == ((Project) obj).name && size == ((Project) obj).size) {
-            Employee[] employee = getEmployees();
-            Employee[] employeeObject = ((Project) obj).getEmployees();
+            Employee[] employee = (Employee[]) toArray();
+            Employee[] employeeObject = (Employee[]) ((Project) obj).toArray();
             for(int i = 0; i < size; i++) {
                 if(employee[i].equals(employeeObject[i]))
                     return true;
@@ -353,7 +312,7 @@ public class Project implements EmployeeGroup, Serializable {
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append("Project ").append(name).append(": ").append(size).append("\n");
-        Employee[] employees = getEmployees();
+        Employee[] employees = (Employee[]) toArray();
         for(int i = 0; i < size; i++){
             result.append(employees[i].toString()).append("\n");
         }
@@ -362,7 +321,7 @@ public class Project implements EmployeeGroup, Serializable {
 
     @Override
     public int hashCode() {
-        Employee[] employees = getEmployees();
+        Employee[] employees = (Employee[]) toArray();
         return name.hashCode() ^ size ^ employees.hashCode();
     }
 }

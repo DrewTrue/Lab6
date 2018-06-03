@@ -20,8 +20,10 @@ public final class BusinessTravel {
     }
 
     public BusinessTravel(String destination, LocalDate beginTravel, LocalDate endTravel, int compensation, String description){
-        if(endTravel.isBefore(beginTravel) && compensation < 0)
-            throw new IllegalArgumentException();
+        if(endTravel.isBefore(beginTravel))
+            throw new IllegalArgumentException("current dates are crossing");
+        if(compensation < 0)
+            throw new IllegalArgumentException("compensation is negative");
         //todo разбей на выброс двух исключений с разными сообщениями
         this.compensation = compensation;
         this.beginTravel = beginTravel;
@@ -62,7 +64,8 @@ public final class BusinessTravel {
 
     @Override
     public boolean equals(Object obj){
-        return obj instanceof BusinessTravel
+        return this == obj
+                && obj instanceof BusinessTravel
                 && compensation == ((BusinessTravel) obj).compensation
                 && beginTravel.equals(((BusinessTravel) obj).beginTravel)
                 && endTravel.equals(((BusinessTravel) obj).endTravel)

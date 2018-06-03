@@ -1,10 +1,11 @@
 package humanResources;
 
+import preparingAnus.Client;
+
 import java.io.*;
-import java.nio.file.FileStore;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.time.*;
+import java.util.Calendar;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -38,6 +39,9 @@ public class Main {
         out = new PrintWriter(file);
         out.println("hey");
         out.close();
+
+        Client client = new Client("A", "B", LocalDate.of(1998, 1, 1));
+        System.out.println(LocalTime.now().getHour());
 
     }
 }

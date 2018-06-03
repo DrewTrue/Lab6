@@ -1,9 +1,9 @@
 package humanResources;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-public class CircleLinkedList<T> implements Iterable<T>{
+public class CircularLinkedList<T> implements Iterable<T>{
     private Node<T> head;
     private Node<T> tail;
     private int size;
@@ -16,13 +16,19 @@ public class CircleLinkedList<T> implements Iterable<T>{
         return tail;
     }
 
-    public boolean addNodeSet(T value){
+    public boolean add(T value){
         Node<T> node = new Node<T>(value);
         //todo while-ом по нодам
-        for(int i = 0; i < businessTravels.length; i++){
-            if(node.getValue().equals(businessTravels[i]) && !(value instanceof BusinessTravel))
+
+        Node<T> current = head;
+        do{
+            if(node.getValue().equals(current))
                 return false;
-        }
+            if(!(value instanceof BusinessTravel))
+                return false;
+            current = current.getNext();
+        } while ((current != head));
+
         if(head == null) {
             head = node;
             tail = node;
@@ -37,12 +43,14 @@ public class CircleLinkedList<T> implements Iterable<T>{
         return true;
     }
 
-    public boolean addAllSets(Collection<? extends BusinessTravel> c){
+    public boolean addAll(Collection<? extends BusinessTravel> c){
 
         int counter = 0;
         //todo foreach(по с) b add()
-
-
+        for (BusinessTravel item: c) {
+            if(add((T) item))
+                counter++;
+        }
         return counter > 0;
     }
 
@@ -50,14 +58,14 @@ public class CircleLinkedList<T> implements Iterable<T>{
         int counter = 0;
         for (Object o : c) {
             if(!this.contains(o)) {
-                this.removeNode(o);
+                this.remove(o);
                 counter++;
             }
         }
         return counter == 0;
     }
 
-    public boolean removeNode(Object value){
+    public boolean remove(Object value){
         Node<T> current = head;
         Node<T> previous = null;
 
@@ -86,38 +94,20 @@ public class CircleLinkedList<T> implements Iterable<T>{
     }
 
     public boolean removeAll(Collection<?> c) {
-        Node<T> current = head;
-        Node<T> previous = null;
         int counter = 0;
-        BusinessTravel[] businessTravels = (BusinessTravel[]) c.toArray();
 
         if (isEmpty())
             return false;
         //todo вместо массива используй foreach(по c)
-        for (int i = 0; i < businessTravels.length; i++) {
-            do {
-                if (current.getValue().equals(businessTravels[i])) {
-                    if (previous != null) {
-                        previous.setNext(current.getNext());
-                        if (current == tail)
-                            tail = previous;
-                    } else {
-                        head = current.getNext();
-                        tail.setNext(current.getNext());
-                    }
-                    size--;
-                    counter++;
-                    break;
-                }
-                previous = current;
-                current = current.getNext();
-            } while (current != head);
+        for (Object item : c) {
+            if(remove(item))
+                counter++;
         }
 
         return counter > 0;
     }
 
-    public int getSize(){
+    public int size(){
         return size;
     }
 
@@ -125,21 +115,24 @@ public class CircleLinkedList<T> implements Iterable<T>{
         return size == 0;
     }
 
-    public void clearList(){
+    public void clear(){
         //todo пока ждому ноду проходимся и делаем ссылки null
-        head = null;
-        tail = null;
+        Node<T> current = head;
+        do {
+            current = null;
+            current = current.getNext();
+        } while (current != head);
         size =  0;
     }
 
     public boolean contains(Object value){
         Node<T> current = head;
 
-        while(current != null){
+        do {
             if(current.getValue().equals(value))
                 return true;
             current = current.getNext();
-        }
+        } while (current != head);
 
         return false;
     }
@@ -148,50 +141,65 @@ public class CircleLinkedList<T> implements Iterable<T>{
         Node<T> current = head;
         int counter = 0;
         //todo поменяй на foreach
-        for (Object o : c) {
-            current.getValue().equals(o)
-        }
-        for(int i = 0; i < businessTravels.length; i++) {
-            while (current != null) {
-                if (current.getValue().equals(businessTravels[i])) {
+        for(Object item : c) {
+            do {
+                if (current.getValue().equals(item)) {
                     counter++;
                     break;
                 }
                 current = current.getNext();
-            }
+            } while (current != head);
         }
 
-        return counter == businessTravels.length;
+        return counter == size;
     }
 
     public T[] toArray(){
-        //todo пофиксь под T
-        BusinessTravel[] businessTravels = new BusinessTravel[size];
+        //todo пофиксь под E
+        T[] businessTravels = (T[]) new BusinessTravel[size];
         Node node = head;
         int counter = 0;
         do {
-            businessTravels[counter] = (BusinessTravel) node.getValue();
+            businessTravels[counter] = (T) node.getValue();
             node = node.getNext();
             counter++;
         }while(node != head);
         return businessTravels;
     }
+
+    public T get(int index){
+        if(index > size - 1 || index < 0)
+            return null;
+        int counter = 0;
+        Node<T> current = head;
+        do {
+            if(counter == index)
+                return (T) current;
+            current = current.getNext();
+            counter++;
+        } while (current != head);
+
+        return null;
+    }
+
     //todo итератор
     private class Iterator<T> implements java.util.Iterator<T> {
+        int current = 0;
 
         @Override
         public boolean hasNext() {
-            return false;
+            return current < size;
         }
 
         @Override
         public T next() {
-            return null; //NoSuchElementException
+            if(!hasNext())
+                throw new NoSuchElementException();
+            return (T) get(current++);
         }
     }
 
     public Iterator<T> iterator(){
         return new Iterator<T>();
     }
-
 }

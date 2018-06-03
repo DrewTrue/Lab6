@@ -62,9 +62,12 @@ public abstract class Employee implements Comparable<Employee>, Serializable{
     }
 
     @Override
-    public boolean equals(Object obj){
+    public boolean equals(Object obj) {
         //todo забыл проерки на ==null, ==this и тип объекта
-        return this == obj & firstName.equals(((Employee) obj).firstName)
+        return this == obj
+                || this.getClass().equals(obj.getClass())
+                || firstName != null && secondName != null && jobTitle != null && salary != 0
+                && firstName.equals(((Employee) obj).firstName)
                 && secondName.equals(((Employee) obj).secondName)
                 && jobTitle.equals(((Employee) obj).jobTitle)
                 && salary == ((Employee) obj).salary;

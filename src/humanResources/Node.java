@@ -1,26 +1,26 @@
 package humanResources;
 
-public class Node<T> {
-    private T value;
-    private Node<T> next;
+public class Node<E> {
+    private E value;
+    private Node<E> next;
 
-    public Node(T value){
+    public Node(E value){
         this.value = value;
     }
 
-    public T getValue(){
+    public E getValue(){
         return value;
     }
 
-    public void setValue(T value){
+    public void setValue(E value){
         this.value = value;
     }
 
-    public Node<T> getNext(){
+    public Node<E> getNext(){
         return next;
     }
 
-    public void setNext(Node<T> next){
+    public void setNext(Node<E> next){
         this.next = next;
     }
 }

@@ -16,22 +16,15 @@ public class ProjectsManager implements GroupsManager{
     }
 
     public ProjectsManager(Node<EmployeeGroup> head){
-        list.addNodeList(head.getValue());
+        list.add(head.getValue());
         this.size = DEFAULT_SIZE;
     }
 
     @Override
     public int getPartTimeEmployeesQuantity(){
         int quantity = 0;
-        Employee[] employees;
-        EmployeeGroup[] groups = getEmployeesGroups();
-        for(int i = 0; i < groups.length; i++) {
-            employees = groups[i].getEmployees();
-            for(int j = 0; j < employees.length; j++) {
-                if (employees[j] instanceof PartTimeEmployee) {
-                    quantity++;
-                }
-            }
+        for(EmployeeGroup group : this) {
+            quantity += group.getPartTimeEmployeesQuantity();
         }
         return quantity;
     }
@@ -39,15 +32,8 @@ public class ProjectsManager implements GroupsManager{
     @Override
     public int getStaffEmployeesQuantity(){
         int quantity = 0;
-        Employee[] employees;
-        EmployeeGroup[] groups = getEmployeesGroups();
-        for(int i = 0; i < groups.length; i++){
-            employees = groups[i].getEmployees();
-            for(int j = 0; j < employees.length; j++) {
-                if (employees[j] instanceof StaffEmployee) {
-                    quantity++;
-                }
-            }
+        for(EmployeeGroup group : this){
+            quantity += group.getStaffEmployeesQuantity();
         }
         return quantity;
     }
@@ -55,14 +41,8 @@ public class ProjectsManager implements GroupsManager{
     @Override
     public int getCurrentTravellersQuantity(){
         int quantity = 0;
-        Employee[] employees;
-        EmployeeGroup[] groups = getEmployeesGroups();
-        for(int i = 0; i < groups.length; i++) {
-            employees = groups[i].getEmployees();
-            for (int j = 0; j < employees.length; j++) {
-                if (((StaffEmployee) employees[j]).isTravelNow())
-                    quantity++;
-            }
+        for(EmployeeGroup group : this) {
+            quantity += getCurrentTravellersQuantity();
         }
         return quantity;
     }
@@ -71,34 +51,22 @@ public class ProjectsManager implements GroupsManager{
     public Employee[] getCurrentTravellers(LocalDate beginTravelMark, LocalDate endTravelMark){
         Employee[] newEmployees = new Employee[getStaffEmployeesQuantity()];
         Employee[] employees;
-        EmployeeGroup[] groups = getEmployeesGroups();
         int counter = 0;
-        for(int i = 0; i < groups.length; i++) {
-            employees = groups[i].getEmployees();
-            for (int j = 0; j < employees.length; j++) {
-                if (((StaffEmployee) employees[i]).getTravelDaysFromTimeLapse(beginTravelMark, endTravelMark) > 0)
-                    newEmployees[counter] = employees[i];
+        for(EmployeeGroup group : this) {
+            employees = group.getCurrentTravellers(beginTravelMark, endTravelMark);
+            for (Employee employee : employees) {
+                if (((StaffEmployee) employee).getTravelDaysFromTimeLapse(beginTravelMark, endTravelMark) > 0)
+                    newEmployees[counter] = employee;
             }
         }
         return newEmployees;
     }
 
     @Override
-    public EmployeeGroup[] getEmployeesGroups(){
-        return list.getGroups();
-    }
-
-    @Override
-    public int groupsQuantity() {
-        return size;
-    }
-
-    @Override
-    public EmployeeGroup getEmployeeGroup(String name) {
-        EmployeeGroup[] groups = getEmployeesGroups();
-        for (int i = 0; i < size; i++) {
-            if (groups[i] != null && groups[i].getName().equals(name))
-                return groups[i];
+    public EmployeeGroup getEmployeeGroup(String name) {;
+        for (EmployeeGroup group : this) {
+            if (group != null && group.getName().equals(name))
+                return group;
         }
         return null;
     }
@@ -107,7 +75,7 @@ public class ProjectsManager implements GroupsManager{
     public Employee mostValuableEmployee() {
         int maxSalary = 0, index = 0;
         Employee[] employee;
-        EmployeeGroup[] groups = getEmployeesGroups();
+        EmployeeGroup[] groups = (EmployeeGroup[]) toArray();
         for (int i = 0; i < size; i++) {
             if (groups[i] != null) {
                 employee = groups[i].getEmployeesSortedBySalary();
@@ -123,15 +91,14 @@ public class ProjectsManager implements GroupsManager{
 
     @Override
     public EmployeeGroup getEmployeesGroup(String firstName, String secondName) {
-        EmployeeGroup[] groups = getEmployeesGroups();
-        Employee[] employee;
-        for (int i = 0; i < size; i++) {
-            if (groups[i] != null) {
-                employee = groups[i].getEmployees();
-                for(int j = 0; j < employee.length; j++) {
-                    if (employee[j] != null && (employee[j].getFirstName().equals(firstName)
-                            && employee[j].getSecondName().equals(secondName)))
-                        return groups[i];
+        Employee[] employees;
+        for (EmployeeGroup group : this) {
+            if (group != null) {
+                employees = (Employee[]) group.toArray();
+                for(Employee employee : employees) {
+                    if (employee != null && (employee.getFirstName().equals(firstName)
+                            && employee.getSecondName().equals(secondName)))
+                        return group;
                 }
             }
         }
@@ -141,13 +108,12 @@ public class ProjectsManager implements GroupsManager{
     @Override
     public int employeesQuantity(JobTitlesEnum jobTitle) {
         int quantity = 0;
-        EmployeeGroup[] groups = getEmployeesGroups();
-        Employee[] employee;
-        for (int i = 0; i < size; i++) {
-            if(groups[i] != null) {
-                for(int j = 0; j < groups[i].getEmployees().length; j++){
-                    employee = groups[i].getEmployees();
-                    if(employee[j].getJobTitle().equals(jobTitle))
+        Employee[] employees;
+        for (EmployeeGroup group : this) {
+            if(group != null) {
+                employees = (Employee[]) group.toArray();
+                for(Employee employee : employees){
+                    if(employee.getJobTitle().equals(jobTitle))
                         quantity++;
                 }
             }
@@ -158,40 +124,21 @@ public class ProjectsManager implements GroupsManager{
     @Override
     public int employeesQuantity() {
         int quantity = 0;
-        EmployeeGroup[] groups = getEmployeesGroups();
-        for (int i = 0; i < size; i++) {
-            if(groups[i] != null) {
-                quantity += groups[i].employeeQuantity();
+        for (EmployeeGroup group : this) {
+            if(group != null) {
+                quantity += group.size();
             }
         }
         return quantity;
     }
 
     @Override
-    public void addGroup(EmployeeGroup group) throws AlreadyAddedException {
-        list.addNodeList(group);
-    }
-
-    @Override
     public boolean removeGroup(String name) {
-        EmployeeGroup[] employeeGroups = getEmployeesGroups();
-
-        for(int i = 0; i < size; i++){
-            if(employeeGroups[i].getName().equals(name))
-                return list.removeNode(employeeGroups[i]);
+        for(EmployeeGroup group : this){
+            if(group.getName().equals(name))
+                return list.remove(group);
         }
         return false;
-    }
-
-    @Override
-    public int removeGroup(EmployeeGroup group) {
-        int counter = 0;
-
-        while(list.removeNode(group)){
-            counter++;
-        }
-
-        return counter;
     }
 
     @Override
@@ -211,18 +158,17 @@ public class ProjectsManager implements GroupsManager{
 
     @Override
     public Iterator<EmployeeGroup> iterator() {
-        humanResources.ListIterator<EmployeeGroup> iterator = new humanResources.ListIterator<>(getEmployeesGroups());
-        return iterator.iterator();
+        return new LinkedList<EmployeeGroup>().iterator();
     }
 
     @Override
     public Object[] toArray() {
-        return getEmployeesGroups();
+        return list.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
-        EmployeeGroup[] employeeGroups = getEmployeesGroups();
+        EmployeeGroup[] employeeGroups = (EmployeeGroup[]) toArray();
 
         if(a.length < size)
             a = (T[]) new EmployeeGroup[size];
@@ -233,75 +179,73 @@ public class ProjectsManager implements GroupsManager{
     }
 
     @Override
-    public boolean add(EmployeeGroup group) {
-        return list.addNodeList(group);
+    public boolean add(EmployeeGroup group) throws AlreadyAddedException {
+        return list.add(group);
     }
 
     @Override
     public boolean remove(Object o) {
-        return list.removeNode((EmployeeGroup) o);
+        return list.remove((EmployeeGroup) o);
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return list.containsAllGroups(c);
+        return list.containsAll(c);
     }
 
     @Override
     public boolean addAll(Collection<? extends EmployeeGroup> c) {
-        return list.addAllGroups(c);
+        return list.addAll(c);
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends EmployeeGroup> c) {
-        return list.addAllGroups(index, c);
+        return list.addAll(index, c);
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return list.removeAllGroups(c);
+        return list.removeAll(c);
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return list.retainAllGroups(c);
+        return list.retainAll(c);
     }
 
     @Override
     public void clear() {
-        list.clearList();
+        list.clear();
     }
 
     @Override
     public EmployeeGroup get(int index) {
-        EmployeeGroup[] employeeGroups = getEmployeesGroups();
-
+        EmployeeGroup[] employeeGroups = (EmployeeGroup[]) toArray();
         for(int i = 0; i < size; i++){
             if(i == index)
                 return employeeGroups[i];
         }
-
         return null;
     }
 
     @Override
     public EmployeeGroup set(int index, EmployeeGroup element) {
-        return list.setGroup(index, element);
+        return list.set(index, element);
     }
 
     @Override
     public void add(int index, EmployeeGroup element) {
-        list.addNodeList(index, element);
+        list.add(index, element);
     }
 
     @Override
     public EmployeeGroup remove(int index) {
-        return list.removeGroup(index);
+        return list.remove(index);
     }
 
     @Override
     public int indexOf(Object o) {
-        EmployeeGroup[] employeeGroups = getEmployeesGroups();
+        EmployeeGroup[] employeeGroups = (EmployeeGroup[]) toArray();
 
         for(int i = 0; i < size; i++){
             if(employeeGroups[i].equals(o))
@@ -313,7 +257,7 @@ public class ProjectsManager implements GroupsManager{
 
     @Override
     public int lastIndexOf(Object o) {
-        EmployeeGroup[] employeeGroups = getEmployeesGroups();
+        EmployeeGroup[] employeeGroups = (EmployeeGroup[]) toArray();
 
         for(int i = size - 1; i > -1; i--){
             if(employeeGroups[i].equals(o))
@@ -325,26 +269,22 @@ public class ProjectsManager implements GroupsManager{
 
     @Override
     public ListIterator<EmployeeGroup> listIterator() {
-        humanResources.ListIterator<EmployeeGroup> iterator = new humanResources.ListIterator<>(getEmployeesGroups());
-        return (ListIterator<EmployeeGroup>) iterator.iterator();
+        return new LinkedList<EmployeeGroup>().listIterator();
     }
 
     @Override
     public ListIterator<EmployeeGroup> listIterator(int index) {
-        humanResources.ListIterator<EmployeeGroup> iterator = new humanResources.ListIterator<>(getEmployeesGroups(), index);
-        return (ListIterator<EmployeeGroup>) iterator.iterator();
+        return new LinkedList<EmployeeGroup>().listIterator(index);
     }
 
     @Override
     public List<EmployeeGroup> subList(int fromIndex, int toIndex) {
-        EmployeeGroup[] groups = getEmployeesGroups();
+        EmployeeGroup[] groups = (EmployeeGroup[]) toArray();
 
         if(fromIndex < toIndex && fromIndex >= 0 && toIndex <= size) {
-            LinkedList<EmployeeGroup> list = new LinkedList<>();
-            for (int i = fromIndex; i <= toIndex; i++) {
-                list.addNodeList(groups[i]);
-            }
-            return (List<EmployeeGroup>) list;
+            ProjectsManager projectsManager = new ProjectsManager();
+            projectsManager.addAll(Arrays.asList(groups).subList(fromIndex, toIndex + 1));
+            return projectsManager;
         }
 
         return null;

@@ -4,7 +4,32 @@ import java.util.*;
 
 
 //todo аналогично CycledLinkedList
-public class LinkedList<T>{
+public class LinkedList<T> implements Iterable<T>{
+    private class Node<E> {
+        private E value;
+        private Node<E> next;
+
+        public Node(E value){
+            this.value = value;
+        }
+
+        public E getValue(){
+            return value;
+        }
+
+        public void setValue(E value){
+            this.value = value;
+        }
+
+        public Node<E> getNext(){
+            return next;
+        }
+
+        public void setNext(Node<E> next){
+            this.next = next;
+        }
+    }
+
     private Node<T> head;
     private Node<T> tail;
     private int size;
@@ -17,7 +42,7 @@ public class LinkedList<T>{
         return tail;
     }
 
-    public boolean addNodeList(T value){
+    public boolean add(T value){
         Node<T> node = new Node<>(value);
 
         if(head == null)
@@ -30,8 +55,7 @@ public class LinkedList<T>{
         return true;
     }
 
-    //bullshit method
-    public boolean addNodeList(int index, T value){
+    public boolean add(int index, T value){
         Node<T> nodeValue = new Node<T>(value);
 
         Node<T> node = head;
@@ -39,7 +63,7 @@ public class LinkedList<T>{
         int counter = 0;
 
         if(!isEmpty()) {
-            if (index == 0) { // if node is in the beginning
+            if (index == 0) {
                 currentNode = head;
                 head = nodeValue;
                 head.setNext(currentNode);
@@ -47,17 +71,21 @@ public class LinkedList<T>{
                 return true;
             }
 
-            if (index == size - 1) { // if node is in the end
+            if (index == size - 1) {
                 currentNode = tail;
-                tail = nodeValue;
-                return addNodeList(value);
+                remove(tail.value);
+                if(add(nodeValue.value)) {
+                    add(currentNode.value);
+                    return true;
+                }
+                return false;
             }
         } else {
-            return addNodeList(value);
+            return add(value);
         }
 
         while(node != null) {
-            if(counter == index){ // if node is in the middle
+            if(counter == index){
                 currentNode = node;
                 node = nodeValue;
                 node.setNext(currentNode);
@@ -75,194 +103,89 @@ public class LinkedList<T>{
         return false;
     }
 
-    public boolean addAllEmployees(Collection<? extends Employee> c) {
-        Employee[] employeesCollection = (Employee[]) c.toArray();
-        Node<T> node;
-        Employee[] employees = getEmployees();
+    public boolean addAll(Collection<? extends T> c) {
         int counter = 0;
 
-        for (int j = 0; j < employeesCollection.length; j++) {
-            node = new Node<>((T) employeesCollection[j]);
-            if (head == null)
-                head = node;
-            else
-                tail.setNext(node);
-            tail = node;
-            size++;
-            counter++;
+        for (T item : c) {
+            if(add(item))
+                counter++;
         }
 
         return counter > 0;
     }
 
-    public boolean addAllGroups(Collection<? extends EmployeeGroup> c) {
-        EmployeeGroup[] groupsCollection = (EmployeeGroup[]) c.toArray();
-        Node<T> node;
-        EmployeeGroup[] groups = getGroups();
+    public boolean addAll(int index, Collection<? extends T> c) {
+        Object[] objects = toArray();
         int counter = 0;
 
-        for (int j = 0; j < groupsCollection.length; j++) {
-            node = new Node<>((T) groupsCollection[j]);
-            if (head == null)
-                head = node;
-            else
-                tail.setNext(node);
-            tail = node;
-            size++;
+        clear();
+
+        for(int i = 0; i < index; i++){
+            add((T) objects[i]);
+        }
+
+        for (T item : c) {
+            add(item);
             counter++;
         }
 
-        return counter > 0;
+        for(int i = index; i < objects.length; i++){
+            add((T)objects[i]);
+        }
+
+        return counter == c.size();
     }
 
-    //bullshit method x2
-    public boolean addAllEmployees(int index, Collection<? extends Employee> c) {
-        Employee[] employeesCollection = (Employee[]) c.toArray();
-        Employee[] employees = getEmployees();
-        boolean isAddAll1 = false;
-        boolean isAddAll2 = false;
-        boolean isAddAll3 = false;
-
-        clearList();
-
-        for(int i = 0; i < index; i++){
-            isAddAll1 = addNodeList((T) employees[i]);
+    public T get(int index){
+        Node<T> current = head;
+        int counter = 0;
+        while (current != null){
+            if(counter == index)
+                return (T) current;
+            counter++;
+            current = current.getNext();
         }
-
-        for (Employee anEmployeesCollection : employeesCollection) {
-            isAddAll2 = addNodeList((T) anEmployeesCollection);
-        }
-
-        for(int i = index; i < employees.length; i++){
-            isAddAll3 = addNodeList((T)employees[i]);
-        }
-
-        return isAddAll1 && isAddAll2 && isAddAll3;
+        return null;
     }
 
-    public boolean addAllGroups(int index, Collection<? extends EmployeeGroup> c) {
-        EmployeeGroup[] groupsCollection = (EmployeeGroup[]) c.toArray();
-        EmployeeGroup[] groups = getGroups();
-        boolean isAddAll1 = false;
-        boolean isAddAll2 = false;
-        boolean isAddAll3 = false;
-
-        clearList();
-
-        for(int i = 0; i < index; i++){
-            isAddAll1 = addNodeList((T) groups[i]);
-        }
-
-        for (EmployeeGroup group : groupsCollection) {
-            isAddAll2 = addNodeList((T) group);
-        }
-
-        for(int i = index; i < groups.length; i++){
-            isAddAll3 = addNodeList((T)groups[i]);
-        }
-
-        return isAddAll1 && isAddAll2 && isAddAll3;
-    }
-
-    public EmployeeGroup setGroup(int index, T value){
-        Node<T> nodeValue = new Node<T>(value);
-
-        Node<T> node = head;
-        Node<T> currentNode;
+    public T set(int index, T value){
+        Node<T> current = head;
         int counter = 0;
 
-        if (index == 0) { // if node is in the beginning
-            head = nodeValue;
-            return (EmployeeGroup) head.getValue();
+        if (index == 0) {
+            head.setValue(value);
+            return head.getValue();
         }
 
-        if(index == size - 1){ // if node is in the end
-            tail = nodeValue;
-            return (EmployeeGroup) tail.getValue();
+        if(index == size - 1){
+            tail.setValue(value);
+            return tail.getValue();
         }
 
-        while(node != null) {
-            if(counter == index){ // if node is in the middle
-                node = nodeValue;
-                return (EmployeeGroup) node.getValue();
+        while(current != null) {
+            if(counter == index){
+                current.setValue(value);
+                return current.getValue();
             }
-
             counter++;
-            node = node.getNext();
+            current = current.getNext();
         }
 
         return null;
     }
 
-    public Employee setEmployee(int index, T value){
-        Node<T> nodeValue = new Node<T>(value);
-
-        Node<T> node = head;
-        Node<T> currentNode;
+    public boolean retainAll(Collection<?> c) {
         int counter = 0;
-
-        if (index == 0) { // if node is in the beginning
-            head = nodeValue;
-            return (Employee) head.getValue();
-        }
-
-        if(index == size - 1){ // if node is in the end
-            tail = nodeValue;
-            return (Employee) tail.getValue();
-        }
-
-        while(node != null) {
-            if(counter == index){ // if node is in the middle
-                node = nodeValue;
-                return (Employee) node.getValue();
-            }
-
-            counter++;
-            node = node.getNext();
-        }
-
-        return null;
-    }
-
-    public boolean retainAllEmployees(Collection<?> c) {
-        Employee[] retainEmployees = (Employee[]) c.toArray();
-        Employee[] currentEmployees = getEmployees();
-        int counter = 0;
-
-        clearList();
-
-        for(int i = 0; i < currentEmployees.length; i++) {
-            for (int j = 0; j < retainEmployees.length; j++) {
-                if (currentEmployees[i].equals(retainEmployees[j])) {
-                    addNodeList((T) retainEmployees[j]);
-                    counter++;
-                }
+        for (Object item : c) {
+            if(!this.contains((T) item)) {
+                this.remove((T) item);
+                counter++;
             }
         }
-
-        return counter <= 0;
+        return counter == 0;
     }
 
-    public boolean retainAllGroups(Collection<?> c) {
-        EmployeeGroup[] retainGroups = (EmployeeGroup[]) c.toArray();
-        EmployeeGroup[] currentGroups = getGroups();
-        int counter = 0;
-
-        clearList();
-
-        for(int i = 0; i < currentGroups.length; i++) {
-            for (int j = 0; j < retainGroups.length; j++) {
-                if (currentGroups[i].equals(retainGroups[j])) {
-                    addNodeList((T) retainGroups[j]);
-                    counter++;
-                }
-            }
-        }
-
-        return counter <= 0;
-    }
-
-    public boolean removeNode(T value){
+    public boolean remove(T value){
         Node<T> current = head;
         Node<T> previous = null;
 
@@ -287,93 +210,33 @@ public class LinkedList<T>{
         return false;
     }
 
-    public EmployeeGroup removeGroup(int index){
-        EmployeeGroup[] employeeGroups = getGroups();
+    public T remove(int index){
+        T removeNode;
         for(int i = 0; i < size; i++){
             if(index == i){
-                removeNode((T) employeeGroups[i]);
-                return employeeGroups[i];
+                removeNode = get(i);
+                if(remove(removeNode))
+                    return removeNode;
             }
         }
 
         return null;
     }
 
-    public Employee removeEmployee(int index){
-        Employee[] employees = getEmployees();
-        for(int i = 0; i < size; i++){
-            if(index == i){
-                removeNode((T) employees[i]);
-                return employees[i];
-            }
-        }
-
-        return null;
-    }
-
-    public boolean removeAllEmployees(Collection<?> c) {
-        Node<T> current = head;
-        Node<T> previous = null;
+    public boolean removeAll(Collection<?> c) {
         int counter = 0;
-        Employee[] employeesCollection = (Employee[]) c.toArray();
 
-        for(int i = 0; i < employeesCollection.length; i++){
-            while(current != null){
-                if(current.getValue().equals(employeesCollection[i])){
-                    if(previous != null){
-                        previous.setNext(current.getNext());
-                        if(current.getNext() == null)
-                            tail = previous;
-                    }
-                    else{
-                        head = head.getNext();
-                        if(head == null)
-                            tail = null;
-                    }
-                    size--;
-                    counter++;
-                    break;
-                }
-                previous = current;
-                current = current.getNext();
-            }
+        if (isEmpty())
+            return false;
+        for (Object item : c) {
+            if(remove((T) item))
+                counter++;
         }
 
         return counter > 0;
     }
 
-    public boolean removeAllGroups(Collection<?> c) {
-        Node<T> current = head;
-        Node<T> previous = null;
-        int counter = 0;
-        EmployeeGroup[] groups = (EmployeeGroup[]) c.toArray();
-
-        for(int i = 0; i < groups.length; i++){
-            while(current != null){
-                if(current.getValue().equals(groups[i])){
-                    if(previous != null){
-                        previous.setNext(current.getNext());
-                        if(current.getNext() == null)
-                            tail = previous;
-                    }
-                    else{
-                        head = head.getNext();
-                        if(head == null)
-                            tail = null;
-                    }
-                    size--;
-                    counter++;
-                    break;
-                }
-                previous = current;
-                current = current.getNext();
-            }
-        }
-
-        return counter > 0;
-    }
-
-    public int getSize() {
+    public int size() {
         return size;
     }
 
@@ -381,9 +244,12 @@ public class LinkedList<T>{
         return size == 0;
     }
 
-    public void clearList(){
-        head = null;
-        tail = null;
+    public void clear(){
+        Node<T> current = head;
+        while (current != null){
+            current = null;
+            current = current.getNext();
+        }
         size =  0;
     }
 
@@ -397,99 +263,124 @@ public class LinkedList<T>{
         return false;
     }
 
-    public boolean containsAllEmployees(Collection<?> c){
-        Employee[] employeesCollection = (Employee[]) c.toArray();
+    public boolean containsAll(Collection<?> c){
         Node<T> current = head;
         int counter = 0;
-
-        for(int i = 0; i < employeesCollection.length; i++) {
-            while (current != null) {
-                if (current.getValue().equals(employeesCollection[i])){
+        for(Object item : c) {
+            do {
+                if (current.getValue().equals(item)) {
                     counter++;
                     break;
                 }
                 current = current.getNext();
-            }
+            } while (current != head);
         }
 
-        return counter == employeesCollection.length;
+        return counter == size;
     }
 
-    public boolean containsAllGroups(Collection<?> c){
-        EmployeeGroup[] groups = (EmployeeGroup[]) c.toArray();
+    public Object[] toArray(){
+        Object[] objects = new Object[size];
         Node<T> current = head;
         int counter = 0;
-
-        for(int i = 0; i < groups.length; i++) {
-            while (current != null) {
-                if (current.getValue().equals(groups[i])){
-                    counter++;
-                    break;
-                }
-                current = current.getNext();
-            }
-        }
-
-        return counter == groups.length;
-    }
-
-    public Employee[] getEmployees(){
-        Employee[] employee = new Employee[size];
-        Node node = head;
-        int counter = 0;
-        while(node != null){
-            employee[counter] = (Employee) node.getValue();
-            node = node.getNext();
+        while (current != null){
+            objects[counter] = current;
             counter++;
+            current = current.getNext();
         }
-        return employee;
-    }
-
-    public EmployeeGroup[] getGroups(){
-        EmployeeGroup[] employeeGroups = new EmployeeGroup[size];
-        Node node = head;
-        int counter = 0;
-
-        while(node != null){
-            employeeGroups[counter] = (EmployeeGroup) node.getValue();
-            node = node.getNext();
-            counter++;
-        }
-
-        return employeeGroups;
-    }
-
-    public BusinessTravel[] getTravels(){
-        BusinessTravel[] businessTravels = new BusinessTravel[size];
-        Node node = head;
-        int counter = 0;
-        while(node != null) {
-            businessTravels[counter] = (BusinessTravel) node.getValue();
-            node = node.getNext();
-            counter++;
-        }
-        return businessTravels;
+        return objects;
     }
 
     //todo та же фигня с итератором, что и в CycledLinkedList
 
-    public Iterator<T> iteratorEmployees(){
-        ListIterator<T> iterator = new ListIterator<>((T[])getEmployees());
-        return iterator.iterator();
+    private class Iterator<E> implements java.util.Iterator<E> {
+        int current = 0;
+
+        @Override
+        public boolean hasNext() {
+            return current < size;
+        }
+
+        @Override
+        public E next() {
+            if(!hasNext())
+                throw new NoSuchElementException();
+            return (E) get(current++);
+        }
     }
 
-    public ListIterator<T> listIteratorEmployees(){
-        ListIterator<T> listIterator = new ListIterator<>((T[])getEmployees());
-        return (ListIterator<T>) listIterator.iterator();
+    public Iterator<T> iterator(){
+        return new Iterator<>();
     }
 
-    public Iterator<T> iteratorGroups(){
-        ListIterator<T> iterator = new ListIterator<>((T[])getGroups());
-        return iterator.iterator();
+    private class ListIterator<E> implements java.util.ListIterator<E>{
+        int current;
+
+        private final static int DEAFAULT_INDEX = 0;
+
+        ListIterator(){
+            this(DEAFAULT_INDEX);
+        }
+
+        ListIterator(int index){
+            current = index;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return current < size;
+        }
+
+        @Override
+        public E next() {
+            if(!hasNext())
+                throw new NoSuchElementException();
+            return (E) get(current++);
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return current >= 0;
+        }
+
+        @Override
+        public E previous() {
+            if(!hasPrevious())
+                throw new NoSuchElementException();
+            return (E) get(current--);
+        }
+
+        @Override
+        public int nextIndex() {
+            return current++;
+        }
+
+        @Override
+        public int previousIndex() {
+            return current--;
+        }
+
+        @Override
+        public void remove() {
+            LinkedList.this.remove(current);
+        }
+
+        @Override
+        public void set(E e) {
+            LinkedList.this.set(current, (T) e);
+        }
+
+        @Override
+        public void add(E e) {
+            LinkedList.this.add((T) e);
+        }
     }
 
-    public ListIterator<T> listIteratorGroups(){
-        ListIterator<T> listIterator = new ListIterator<>((T[])getGroups());
-        return (ListIterator<T>) listIterator.iterator();
+    public ListIterator<T> listIterator(){
+        return new ListIterator<>();
+    }
+
+    public ListIterator<T> listIterator(int index){
+        return new ListIterator<>(index);
     }
 }
