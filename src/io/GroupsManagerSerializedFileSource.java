@@ -17,9 +17,11 @@ public class GroupsManagerSerializedFileSource extends GroupsManagerFileSource {
         try {
             file = new File(getPath(), employeeGroup.getName() + ".bin");
             in = new ObjectInputStream(new FileInputStream(file));
-            employeeGroup.clear();
-            employeeGroup.addAll((EmployeeGroup) in.readObject());
+            EmployeeGroup group = (EmployeeGroup) in.readObject();
             in.close();
+            employeeGroup.clear();
+            employeeGroup.setName(group.getName());
+            employeeGroup.addAll(group);
         } catch (IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -55,14 +57,11 @@ public class GroupsManagerSerializedFileSource extends GroupsManagerFileSource {
 
     @Override
     public boolean create(EmployeeGroup employeeGroup) {
-        File file;
-        ObjectOutputStream out;
         try {
-            file = new File(getPath(), employeeGroup.getName() + ".bin");
-            file.createNewFile();
-            out = new ObjectOutputStream(new FileOutputStream(file));
-            out.writeObject(employeeGroup);
-            out.close();
+            File file = new File(getPath(), employeeGroup.getName() + ".bin");
+            if(!file.createNewFile())
+                return false;
+            store(employeeGroup);
             return true;
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,7 +1,5 @@
 package humanResources;
 
-import io.GroupsManagerFileSource;
-
 public class OrdinaryEmployeeFactory extends EmployeeFactory {
     @Override
     public EmployeeGroup createDepartment(String name) {

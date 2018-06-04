@@ -5,6 +5,7 @@ import humanResources.*;
 import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Scanner;
 
 public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
@@ -36,7 +37,7 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
             employee.setBonus(in.nextInt());
             if(employee.getBonus() == 0) {
                 try {
-                    employeeGroup.addEmployee(employee);
+                    employeeGroup.add(employee);
                 } catch (AlreadyAddedException e) {
                     e.printStackTrace();
                 }
@@ -45,8 +46,8 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
                 travelsQuantity = in.nextInt();
                 ((StaffEmployee) employee).setTravelsQuantity(travelsQuantity);
                 for (int i = 0; i < travelsQuantity; i++) {
-                    beginTravel = LocalDate.parse(in.nextLine());
-                    endTravel = LocalDate.parse(in.nextLine());
+                    beginTravel = LocalDate.ofEpochDay(in.nextLong());
+                    endTravel = LocalDate.ofEpochDay(in.nextLong());
                     compensation = in.nextInt();
                     description = in.nextLine();
                     destination = in.nextLine();
@@ -66,7 +67,7 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
 
         try{
             out = new PrintWriter(file);
-            employee = employeeGroup.getEmployees();
+            employee = (Employee[]) employeeGroup.toArray();
 
             for (Employee anEmployee : employee) {
                 out.println(anEmployee.getClass().getSimpleName());
@@ -81,9 +82,9 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
 
                 if (anEmployee instanceof StaffEmployee) {
                     out.println((anEmployee).getBonus());
-                    out.println(((StaffEmployee) anEmployee).getTravelsQuantity());
+                    out.println(((StaffEmployee) anEmployee).size());
 
-                    businessTravels = ((StaffEmployee) anEmployee).getTravels();
+                    businessTravels = (BusinessTravel[]) ((StaffEmployee) anEmployee).toArray();
 
                     for (BusinessTravel businessTravel : businessTravels) {
                         out.println(businessTravel.getBeginTravel());
@@ -116,46 +117,15 @@ public class GroupsManagerTextFileSource extends GroupsManagerFileSource{
 
     @Override
     public boolean create(EmployeeGroup employeeGroup) {
-        PrintWriter out;
-        Employee[] employee;
-        BusinessTravel[] businessTravels;
-        File file;
-        try {
-            file = new File(getPath(), employeeGroup.getName() + ".txt");
-            file.createNewFile();
-            out = new PrintWriter(file);
-            employee = employeeGroup.getEmployees();
-
-            for (Employee anEmployee : employee) {
-                out.println(anEmployee.getClass().getSimpleName());
-                out.println(anEmployee.getFirstName() + " " + anEmployee.getSecondName());
-                out.println(anEmployee.getJobTitle() + " " + anEmployee.getSalary());
-
-                if (anEmployee instanceof PartTimeEmployee) {
-                    out.println((anEmployee).getBonus());
-                }
-
-                if (anEmployee instanceof StaffEmployee) {
-                    out.println((anEmployee).getBonus());
-                    out.println(((StaffEmployee) anEmployee).getTravelsQuantity());
-
-                    businessTravels = ((StaffEmployee) anEmployee).getTravels();
-
-                    for (BusinessTravel businessTravel : businessTravels) {
-                        out.println(businessTravel.getBeginTravel());
-                        out.println(businessTravel.getEndTravel());
-                        out.println(businessTravel.getCompensation());
-                        out.println(businessTravel.getDescription());
-                        out.println(businessTravel.getDestination());
-                    }
-                }
-            }
-            out.close();
+        try{
+            File file = new File(getPath(), employeeGroup.getName() + ".txt");
+            if (!file.createNewFile())
+                return false;
+            store(employeeGroup);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return false;
     }
 }

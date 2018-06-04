@@ -44,7 +44,7 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
                 employee.setBonus(in.read());
                 if (employee.getBonus() == 0) {
                     try {
-                        employeeGroup.addEmployee(employee);
+                        employeeGroup.add(employee);
                     } catch (AlreadyAddedException e) {
                         e.printStackTrace();
                     }
@@ -53,8 +53,8 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
                     travelsQuantity = in.read();
                     ((StaffEmployee) employee).setTravelsQuantity(travelsQuantity);
                     for(int i = 0; i < travelsQuantity; i++) {
-                        beginTravel = LocalDate.parse(in.readUTF()); LocalDate.ofEpochDay(in.readLong()); //todo а считывать даты логичнее так
-                        endTravel = LocalDate.parse(in.readUTF());
+                        beginTravel = LocalDate.ofEpochDay(in.readLong()); //todo а считывать даты логичнее так
+                        endTravel = LocalDate.ofEpochDay(in.readLong());
                         compensation = in.read();
                         description = in.readUTF();
                         destination = in.readUTF();
@@ -83,7 +83,7 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
         }
 
         try {
-            employee = employeeGroup.getEmployees();
+            employee = (Employee[]) employeeGroup.toArray();
 
             for (Employee anEmployee : employee) {
                 assert out != null;
@@ -99,13 +99,13 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
 
                 if (anEmployee instanceof StaffEmployee) {
                     out.write((anEmployee).getBonus());
-                    out.write(((StaffEmployee) anEmployee).getTravelsQuantity());
+                    out.write(((StaffEmployee) anEmployee).size());
 
-                    businessTravels = ((StaffEmployee) anEmployee).getTravels();
+                    businessTravels = (BusinessTravel[]) ((StaffEmployee) anEmployee).toArray();
 
                     for (BusinessTravel businessTravel : businessTravels) {
                         out.writeLong(businessTravel.getBeginTravel().toEpochDay());//todo даты логичнее записывать так
-                        out.writeUTF(businessTravel.getEndTravel().toString());
+                        out.writeLong(businessTravel.getEndTravel().toEpochDay());
                         out.write(businessTravel.getCompensation());
                         out.writeUTF(businessTravel.getDescription());
                         out.writeUTF(businessTravel.getDestination());
@@ -135,48 +135,15 @@ public class GroupsManagerBinaryFileSource extends GroupsManagerFileSource {
 
     @Override
     public boolean create(EmployeeGroup employeeGroup) {
-        Employee[] employee;
-        BusinessTravel[] businessTravels;
-        File file;
-        DataOutputStream out = null;
-
         try{
-            file = new File(getPath(), employeeGroup.getName() + ".bin");
-            file.createNewFile();
-
-            out = new DataOutputStream(new FileOutputStream(file));
-            employee = employeeGroup.getEmployees();
-
-            for (Employee anEmployee : employee) {
-                assert out != null;
-                out.writeUTF(anEmployee.getClass().getSimpleName());
-                out.writeUTF(anEmployee.getFirstName() + " " + anEmployee.getSecondName());
-                out.writeUTF(anEmployee.getJobTitle() + " " + anEmployee.getSalary());
-
-                if (anEmployee instanceof PartTimeEmployee) {
-                    out.write((anEmployee).getBonus());
-                }
-
-                if (anEmployee instanceof StaffEmployee) {
-                    out.writeUTF((anEmployee).getBonus() + " " + ((StaffEmployee) anEmployee).getTravelsQuantity());
-
-                    businessTravels = ((StaffEmployee) anEmployee).getTravels();
-
-                    for (BusinessTravel businessTravel : businessTravels) {
-                        out.writeUTF(businessTravel.getBeginTravel().toString());
-                        out.writeUTF(businessTravel.getEndTravel().toString());
-                        out.write(businessTravel.getCompensation());
-                        out.writeUTF(businessTravel.getDescription());
-                        out.writeUTF(businessTravel.getDestination());
-                    }
-                }
-            }
-            out.close();
+            File file = new File(getPath(), employeeGroup.getName() + ".bin");
+            if (!file.createNewFile())
+                return false;
+            store(employeeGroup);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return false;
     }
 }

@@ -7,20 +7,16 @@ import java.util.Collection;
 //todo та же фигня, что и в COntrolledDepartment Manager
 public class ControlledProjectManager extends ProjectsManager {
     protected Source<EmployeeGroup> source;
+    private EmployeeFactory factory;
 
-    public ControlledProjectManager() {
+    public ControlledProjectManager(EmployeeFactory factory) {
         super();
+        this.factory = factory;
     }
 
-    public ControlledProjectManager(Node<EmployeeGroup> head) {
+    public ControlledProjectManager(Node<EmployeeGroup> head, EmployeeFactory factory) {
         super(head);
-    }
-
-    @Override
-    public void addGroup(EmployeeGroup group) throws AlreadyAddedException {
-        ControlledProject controlledProject = new ControlledProject(group.getName(), (Employee[]) group.toArray());
-        source.create(controlledProject);
-        super.addGroup(group);
+        this.factory = factory;
     }
 
     @Override
@@ -29,16 +25,9 @@ public class ControlledProjectManager extends ProjectsManager {
     }
 
     @Override
-    public int removeGroup(EmployeeGroup group) {
-        if(source.delete(group))
-            return super.removeGroup(group);
-        return 0;
-    }
-
-    @Override
     public boolean add(EmployeeGroup group) {
-        ControlledProject controlledProject = new ControlledProject(group.getName(), (Employee[]) group.toArray());
-        return source.create(controlledProject) && super.add(controlledProject);
+        EmployeeGroup employeeGroup = factory.createProject(group.getName(), (Employee[]) group.toArray());
+        return source.create(employeeGroup) && super.add(employeeGroup);
     }
 
     @Override
@@ -48,27 +37,22 @@ public class ControlledProjectManager extends ProjectsManager {
 
     @Override
     public boolean addAll(Collection<? extends EmployeeGroup> c) {
-        EmployeeGroup[] groups = (EmployeeGroup[]) c.toArray();
-        ControlledProject controlledProject;
+        EmployeeGroup employeeGroup;
 
-        for (EmployeeGroup group : groups) {
-            controlledProject = new ControlledProject(group.getName(), (Employee[]) group.toArray());
-            source.create(controlledProject);
+        for (EmployeeGroup group : this) {
+            employeeGroup = factory.createProject(group.getName(), (Employee[]) group.toArray());
+            source.create(employeeGroup);
         }
-
         return super.addAll(c);
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends EmployeeGroup> c) {
-        EmployeeGroup[] groups = (EmployeeGroup[]) c.toArray();
-        ControlledProject controlledProject;
-
-        for (int i = index; i < groups.length; i++) {
-            controlledProject = new ControlledProject(groups[i].getName(), (Employee[]) groups[i].toArray());
-            source.create(controlledProject);
+        EmployeeGroup employeeGroup;
+        for (EmployeeGroup group : this) {
+            employeeGroup = factory.createProject(group.getName(), (Employee[]) group.toArray());
+            source.create(employeeGroup);
         }
-
         return super.addAll(index, c);
     }
 
@@ -79,55 +63,44 @@ public class ControlledProjectManager extends ProjectsManager {
         for (EmployeeGroup employeeGroup : employeeGroups) {
             source.delete(employeeGroup);
         }
-
         return super.removeAll(c);
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        EmployeeGroup[] collectionGroups = (EmployeeGroup[]) c.toArray();
-        EmployeeGroup[] employeeGroups = getEmployeesGroups();
-
-        for(int j = 0; j < employeeGroups.length; j++) {
-            for (int i = 0; i < collectionGroups.length; i++) {
-                if (!collectionGroups[i].contains(employeeGroups[j]))
-                    source.delete(employeeGroups[i]);
+        for(Object item : c) {
+            if(!this.contains(item)){
+                source.delete((EmployeeGroup) item);
             }
         }
-
         return super.retainAll(c);
     }
 
     @Override
     public void clear() {
-        EmployeeGroup[] groups = getEmployeesGroups();
-
-        for (EmployeeGroup group : groups) {
+        for (EmployeeGroup group : this) {
             source.delete(group);
         }
-
         super.clear();
     }
 
     @Override
     public EmployeeGroup set(int index, EmployeeGroup element) {
-        ControlledProject controlledProject = new ControlledProject(element.getName(), (Employee[]) element.toArray());
-        source.create(controlledProject);
+        EmployeeGroup employeeGroup = factory.createProject(element.getName(), (Employee[]) element.toArray());
+        source.create(employeeGroup);
         source.delete(get(index));
-        return super.set(index, element);
+        return super.set(index, employeeGroup);
     }
 
     @Override
     public void add(int index, EmployeeGroup element) {
-        ControlledProject controlledProject = new ControlledProject(element.getName(), (Employee[]) element.toArray());
-        source.create(controlledProject);
-        super.add(index, controlledProject);
+        EmployeeGroup employeeGroup = factory.createProject(element.getName(), (Employee[]) element.toArray());
+        super.add(index, employeeGroup);
     }
 
     @Override
     public EmployeeGroup remove(int index) {
-        EmployeeGroup[] groups = getEmployeesGroups();
-        if(source.delete(groups[index]))
+        if(source.delete(get(index)))
             return super.remove(index);
         return null;
     }
@@ -141,17 +114,13 @@ public class ControlledProjectManager extends ProjectsManager {
     }
 
     public void load(){
-        EmployeeGroup[] groups = getEmployeesGroups();
-
-        for (EmployeeGroup group : groups) {
+        for (EmployeeGroup group : this) {
             source.load(group);
         }
     }
 
     public void store(){
-        EmployeeGroup[] groups = getEmployeesGroups();
-
-        for (EmployeeGroup group : groups) {
+        for (EmployeeGroup group : this) {
             if (((ControlledDepartment) group).isChanged)
                 source.store(group);
         }

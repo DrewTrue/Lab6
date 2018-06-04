@@ -7,25 +7,21 @@ import java.util.Collection;
 //todo для создания COntrolled... используй фабрику, ссылку на которую передаст сама фабрика при создании Менеджера
 public class ControlledDepartmentManager extends DepartmentsManager{
     protected Source<EmployeeGroup> source;
-    private EmployeeFactory factory,
+    private EmployeeFactory factory;
 
-    public ControlledDepartmentManager(String name) {
+    public ControlledDepartmentManager(String name, EmployeeFactory factory) {
         super(name);
+        this.factory = factory;
     }
 
-    public ControlledDepartmentManager(String name, int size) {
+    public ControlledDepartmentManager(String name, int size, EmployeeFactory factory) {
         super(name, size);
+        this.factory = factory;
     }
 
-    public ControlledDepartmentManager(String name, EmployeeGroup[] groups) {
+    public ControlledDepartmentManager(String name, EmployeeGroup[] groups, EmployeeFactory factory) {
         super(name, groups);
-    }
-
-    @Override
-    public void addGroup(EmployeeGroup group) throws AlreadyAddedException {
-        ControlledDepartment controlledDepartment = new ControlledDepartment(group.getName(), (Employee[]) group.toArray());
-        source.create(controlledDepartment);
-        super.addGroup(controlledDepartment);
+        this.factory = factory;
     }
 
     @Override
@@ -34,16 +30,9 @@ public class ControlledDepartmentManager extends DepartmentsManager{
     }
 
     @Override
-    public int removeGroup(EmployeeGroup group) {
-        if(source.delete(group))
-            return super.removeGroup(group);
-        return 0;
-    }
-
-    @Override
     public boolean add(EmployeeGroup group) {
-        ControlledDepartment controlledDepartment = new ControlledDepartment(group.getName(), (Employee[]) group.toArray());
-        return source.create(controlledDepartment) && super.add(controlledDepartment);
+        EmployeeGroup employeeGroup = factory.createDepartment(group.getName(), (Employee[]) group.toArray());
+        return source.create(employeeGroup) && super.add(employeeGroup);
     }
 
     @Override
@@ -53,54 +42,41 @@ public class ControlledDepartmentManager extends DepartmentsManager{
 
     @Override
     public boolean addAll(Collection<? extends EmployeeGroup> c) {
-        ControlledDepartment controlledDepartment;
-
+        EmployeeGroup employeeGroup;
         for (EmployeeGroup group : c) {
-            controlledDepartment = new ControlledDepartment(group.getName(), (Employee[]) group.toArray());
-            source.create(controlledDepartment);
+            employeeGroup = factory.createDepartment(group.getName(), (Employee[]) group.toArray());
+            source.create(employeeGroup);
         }
-
         return super.addAll(c);
     }
 
     //todo Здесь и далее коллекции в массив не переделываешь, а бегаешь по ним foreach-ем
     @Override
     public boolean addAll(int index, Collection<? extends EmployeeGroup> c) {
-        EmployeeGroup[] groups = (EmployeeGroup[]) c.toArray();
-        ControlledDepartment controlledDepartment;
-
-        for (int i = index; i < groups.length; i++) {
-            controlledDepartment = new ControlledDepartment(groups[i].getName(), (Employee[]) groups[i].toArray());
-            source.create(controlledDepartment);
+        EmployeeGroup employeeGroup;
+        for (EmployeeGroup group : c) {
+            employeeGroup = factory.createDepartment(group.getName(), (Employee[]) group.toArray());
+            source.create(employeeGroup);
         }
-
         return super.addAll(index, c);
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        EmployeeGroup[] employeeGroups = (EmployeeGroup[]) c.toArray();
-
-        for (EmployeeGroup employeeGroup : employeeGroups) {
-            source.delete(employeeGroup);
+        for (Object item : c) {
+            source.delete((EmployeeGroup) item);
         }
-
         return super.removeAll(c);
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
         //todo foreach-ем по c и если contains, то remove
-        EmployeeGroup[] collectionGroups = (EmployeeGroup[]) c.toArray();
-        EmployeeGroup[] employeeGroups = getEmployeesGroups();
-
-        for(int j = 0; j < employeeGroups.length; j++) {
-            for (int i = 0; i < collectionGroups.length; i++) {
-                if (!collectionGroups[i].contains(employeeGroups[j]))
-                    source.delete(employeeGroups[i]);
+        for(Object item : c) {
+            if(!this.contains(item)){
+                source.delete((EmployeeGroup) item);
             }
         }
-
         return super.retainAll(c);
     }
 
@@ -109,29 +85,27 @@ public class ControlledDepartmentManager extends DepartmentsManager{
         for (EmployeeGroup group : this) {
             source.delete(group);
         }
-
         super.clear();
     }
 
     @Override
     public EmployeeGroup set(int index, EmployeeGroup element) {
-        ControlledDepartment controlledDepartment = new ControlledDepartment(element.getName(), (Employee[]) element.toArray());
-        source.create(controlledDepartment);
+        EmployeeGroup employeeGroup = factory.createDepartment(element.getName(), (Employee[]) element.toArray());
+        source.create(employeeGroup);
         source.delete(get(index));
-        return super.set(index, element);
+        return super.set(index, employeeGroup);
     }
 
     @Override
     public void add(int index, EmployeeGroup element) {
-        ControlledDepartment controlledDepartment = new ControlledDepartment(element.getName(), (Employee[]) element.toArray());
-        source.create(controlledDepartment);
-        super.add(index, controlledDepartment);
+        EmployeeGroup employeeGroup = factory.createDepartment(element.getName(), (Employee[]) element.toArray());
+        source.create(employeeGroup);
+        super.add(index, employeeGroup);
     }
 
     @Override
     public EmployeeGroup remove(int index) {
-        EmployeeGroup[] groups = getEmployeesGroups();
-        if(source.delete(groups[index]))
+        if(source.delete(get(index)))
             return super.remove(index);
         return null;
     }
@@ -145,17 +119,13 @@ public class ControlledDepartmentManager extends DepartmentsManager{
     }
 
     public void load(){
-        EmployeeGroup[] groups = getEmployeesGroups();
-
-        for (EmployeeGroup group : groups) {
+        for (EmployeeGroup group : this) {
             source.load(group);
         }
     }
 
     public void store(){
-        EmployeeGroup[] groups = getEmployeesGroups();
-
-        for (EmployeeGroup group : groups) {
+        for (EmployeeGroup group : this) {
             if (((ControlledDepartment) group).isChanged)
                 source.store(group);
         }

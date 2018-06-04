@@ -3,110 +3,76 @@ package humanResources;
 import io.*;
 
 public class SerializedFileBasedEmployeeFactory extends EmployeeFactory {
-    private GroupsManagerSerializedFileSource source;
+    private String path;
 
     public SerializedFileBasedEmployeeFactory(String path){
-        source = new GroupsManagerSerializedFileSource(path);
+        this.path = path;
     }
 
-    public GroupsManagerSerializedFileSource getSource() {
-        return source;
+    public String getPath() {
+        return path;
     }
 
-    public void setSource(GroupsManagerSerializedFileSource source) {
-        this.source = source;
+    public void setPath(String path) {
+        this.path = path;
     }
-
     @Override
     public EmployeeGroup createDepartment(String name) {
-        ControlledDepartment controlledDepartment = new ControlledDepartment(name);
-        source.create(controlledDepartment);
-        return controlledDepartment;
+        return new ControlledDepartment(name);
     }
 
     @Override
     public EmployeeGroup createProject(String name) {
-        ControlledProject controlledProject = new ControlledProject(name);
-        source.create(controlledProject);
-        return controlledProject;
+        return new ControlledProject(name);
     }
 
     @Override
     public GroupsManager createDepartmentManager(String name) {
-        ControlledDepartmentManager controlledDepartmentManager = new ControlledDepartmentManager(name);
-        EmployeeGroup[] groups = controlledDepartmentManager.getEmployeesGroups();
-
-        for (EmployeeGroup group : groups) {
-            source.create(group);
-        }
-
+        ControlledDepartmentManager controlledDepartmentManager = new ControlledDepartmentManager(name, this);
+        controlledDepartmentManager.setSource( new GroupsManagerSerializedFileSource(path));
         return controlledDepartmentManager;
     }
 
     @Override
     public GroupsManager createProjectManager() {
-        ControlledProjectManager controlledProjectManager = new ControlledProjectManager();
-        EmployeeGroup[] groups = controlledProjectManager.getEmployeesGroups();
-
-        for (EmployeeGroup group : groups) {
-            source.create(group);
-        }
-
+        ControlledProjectManager controlledProjectManager = new ControlledProjectManager(this);
+        controlledProjectManager.setSource( new GroupsManagerSerializedFileSource(path));
         return controlledProjectManager;
     }
 
     @Override
     public EmployeeGroup createDepartment(String name, int size) {
-        ControlledDepartment controlledDepartment = new ControlledDepartment(name, size);
-        source.create(controlledDepartment);
-        return controlledDepartment;
+        return new ControlledDepartment(name, size);
     }
 
     @Override
     public GroupsManager createDepartmentManager(String name, int size) {
-        ControlledDepartmentManager controlledDepartmentManager = new ControlledDepartmentManager(name, size);
-        EmployeeGroup[] groups = controlledDepartmentManager.getEmployeesGroups();
-
-        for (EmployeeGroup group : groups) {
-            source.create(group);
-        }
-
+        ControlledDepartmentManager controlledDepartmentManager = new ControlledDepartmentManager(name, size, this);
+        controlledDepartmentManager.setSource( new GroupsManagerSerializedFileSource(path));
         return controlledDepartmentManager;
     }
 
     @Override
     public GroupsManager createProjectManager(Node<EmployeeGroup> head) {
-        ControlledProjectManager controlledProjectManager = new ControlledProjectManager(head);
-        EmployeeGroup[] groups = controlledProjectManager.getEmployeesGroups();
-
-        for (EmployeeGroup group : groups) {
-            source.create(group);
-        }
+        ControlledProjectManager controlledProjectManager = new ControlledProjectManager(head, this);
+        controlledProjectManager.setSource(new GroupsManagerSerializedFileSource(path));
         return controlledProjectManager;
     }
 
     @Override
     public EmployeeGroup createDepartment(String name, Employee[] employees) {
-        ControlledDepartment controlledDepartment = new ControlledDepartment(name, employees);
-        source.create(controlledDepartment);
-        return controlledDepartment;
+        return new ControlledDepartment(name, employees);
     }
 
     @Override
     public EmployeeGroup createProject(String name, Employee[] employees) {
-        ControlledProject controlledProject = new ControlledProject(name, employees);
-        source.create(controlledProject);
-        return controlledProject;
+        return new ControlledProject(name, employees);
     }
 
     @Override
     public GroupsManager createDepartmentManager(String name, EmployeeGroup[] groups) {
-        ControlledDepartmentManager controlledDepartmentManager = new ControlledDepartmentManager(name, groups);
-
-        for (EmployeeGroup group : groups) {
-            source.create(group);
-        }
-
+        ControlledDepartmentManager controlledDepartmentManager = new ControlledDepartmentManager(name, groups, this);
+        controlledDepartmentManager.setSource( new GroupsManagerSerializedFileSource(path));
         return controlledDepartmentManager;
     }
 }
